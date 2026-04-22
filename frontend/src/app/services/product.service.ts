@@ -6,8 +6,9 @@ export interface Product {
   id: number;
   sku: string;
   name: string;
-  listPrice: number;
   stockQuantity: number;
+  finalPrice: number; // <-- Cambiamos listPrice por esto
+  appliedDiscount: number; // <-- Agregamos el descuento
 }
 
 @Injectable({

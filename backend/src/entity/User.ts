@@ -28,7 +28,7 @@ export class User {
   passwordHash: string; // Guardaremos la contraseña encriptada
 
   @Column({ type: "varchar", length: 50, nullable: true })
-  cuit: string; // Necesario para facturación a clientes B2B
+  cuit: string;
 
   @Column({
     type: "enum",
@@ -38,7 +38,11 @@ export class User {
   role: UserRole;
 
   @Column({ type: "boolean", default: true })
-  isActive: boolean; // Los B2B podrían requerir validación manual (false al inicio)
+  isActive: boolean;
+
+  // --- NUEVO CAMPO: Descuento personalizado por cliente ---
+  @Column({ type: "decimal", precision: 5, scale: 2, default: 0 })
+  discountPercentage: number;
 
   @CreateDateColumn()
   createdAt: Date;

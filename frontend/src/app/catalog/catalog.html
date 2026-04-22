@@ -1,0 +1,50 @@
+<main style="padding: 2rem; font-family: sans-serif">
+  <h1>Catálogo Anselmi - Nivel Minorista</h1>
+
+  <div
+    style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))"
+  >
+    @for (product of products; track product.id) {
+      <div style="border: 1px solid #ccc; padding: 1rem; border-radius: 8px">
+        <p style="color: gray; font-size: 0.8rem; margin: 0">SKU: {{ product.sku }}</p>
+        <h3 style="margin: 0.5rem 0">{{ product.name }}</h3>
+
+        <h2 style="color: #0056b3; margin: 0.5rem 0">${{ product.finalPrice }}</h2>
+
+        @if (product.appliedDiscount > 0) {
+          <span
+            style="
+              background: #28a745;
+              color: white;
+              padding: 0.2rem 0.5rem;
+              border-radius: 4px;
+              font-size: 0.8rem;
+              font-weight: bold;
+            "
+          >
+            {{ product.appliedDiscount }}% OFF Aplicado
+          </span>
+        }
+
+        <button
+          (click)="addToCart(product)"
+          style="
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+          "
+        >
+          Agregar al carrito
+        </button>
+      </div>
+    } @empty {
+      <p>Cargando catálogo desde el sistema...</p>
+    }
+  </div>
+</main>

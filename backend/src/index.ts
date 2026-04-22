@@ -4,6 +4,8 @@ import express, { Request, Response } from "express"; // <-- Importación correg
 import cors from "cors"; // <-- Importación corregida
 import { AppDataSource } from "./data-source";
 import { Product } from "./entity/Product";
+import { register, login } from "./controllers/authController";
+import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
 
 // Inicializamos la aplicación Express
 const app = express();
@@ -20,17 +22,47 @@ AppDataSource.initialize()
 
     // --- RUTAS DE LA API ---
 
-    // 1. Obtener todos los productos (Catálogo)
-    app.get("/api/products", async (req: Request, res: Response) => {
-      try {
-        const productRepo = AppDataSource.getRepository(Product);
-        const products = await productRepo.find();
-        res.json(products);
-      } catch (error) {
-        console.error("Error al obtener productos:", error);
-        res.status(500).json({ message: "Error interno del servidor" });
-      }
-    });
+    // 1. Obtener todos los productos (Catálogo Dinámico)
+    app.get(
+      "/api/products",
+      optionalAuth,
+      async (req: AuthRequest, res: Response) => {
+        try {
+          const productRepo = AppDataSource.getRepository(Product);
+          const products = await productRepo.find();
+
+          // ¿El usuario se logueó? Sacamos su descuento. Si es invitado, es 0.
+          const userDiscount = req.user ? req.user.discount : 0;
+
+          // Recorremos los 710 productos y calculamos en tiempo real
+          const productsWithDynamicPricing = products.map((p) => {
+            const netoAleph = Number(p.listPrice);
+
+            // Aplicamos la fórmula: Neto - Descuento + 21% IVA
+            const netoConDescuento =
+              netoAleph - netoAleph * (userDiscount / 100);
+            const precioFinalConIva = netoConDescuento * 1.21;
+
+            return {
+              id: p.id,
+              sku: p.sku,
+              name: p.name,
+              stockQuantity: p.stockQuantity,
+              finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
+              appliedDiscount: userDiscount,
+            };
+          });
+
+          res.json(productsWithDynamicPricing);
+        } catch (error) {
+          console.error("Error al obtener productos:", error);
+          res.status(500).json({ message: "Error interno del servidor" });
+        }
+      },
+    );
+    // 2. Rutas de Autenticación
+    app.post("/api/auth/register", register);
+    app.post("/api/auth/login", login);
 
     // --- LEVANTAR EL SERVIDOR ---
     const PORT = 3001;

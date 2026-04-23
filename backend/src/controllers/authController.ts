@@ -9,7 +9,7 @@ const JWT_SECRET = "anselmi_secreto_super_seguro_2026"; // En producción esto v
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { fullName, email, password, cuit, role } = req.body;
+    const { fullName, email, password, cuit, role, isActive } = req.body;
 
     const userRepository = AppDataSource.getRepository(User);
 
@@ -30,24 +30,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     newUser.email = email;
     newUser.passwordHash = passwordHash;
     newUser.cuit = cuit;
+    newUser.role = role;
 
-    // Si eligen B2B (Mayorista), los dejamos inactivos hasta que Maxi los valide
-    if (role === UserRole.B2B) {
-      newUser.role = UserRole.B2B;
+    // LÓGICA MEJORADA:
+    // Si mandan el campo isActive desde el frontend (como hará el admin), lo respetamos.
+    // Si no lo mandan (ej: un registro público a futuro), por defecto los B2B nacen inactivos.
+    if (isActive !== undefined) {
+      newUser.isActive = isActive;
+    } else if (role === UserRole.B2B) {
       newUser.isActive = false;
     } else {
-      newUser.role = UserRole.B2C;
       newUser.isActive = true;
     }
 
     await userRepository.save(newUser);
 
-    res
-      .status(201)
-      .json({
-        message: "Usuario registrado con éxito",
-        isActive: newUser.isActive,
-      });
+    res.status(201).json({
+      message: "Usuario registrado con éxito",
+      isActive: newUser.isActive,
+    });
   } catch (error) {
     console.error("Error en registro:", error);
     res.status(500).json({ message: "Error interno del servidor" });
@@ -75,12 +76,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 3. Verificar si el usuario está activo (Especial para B2B esperando validación)
     if (!user.isActive) {
-      res
-        .status(403)
-        .json({
-          message:
-            "Tu cuenta Mayorista está pendiente de validación por la administración.",
-        });
+      res.status(403).json({
+        message:
+          "Tu cuenta Mayorista está pendiente de validación por la administración.",
+      });
       return;
     }
 

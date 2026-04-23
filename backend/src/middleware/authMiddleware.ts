@@ -33,3 +33,37 @@ export const optionalAuth = (
   }
   next(); // Dejamos pasar la petición al endpoint de productos
 };
+
+export const requireAdmin = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      req.user = decoded;
+
+      // EL FIX: Verificamos que req.user exista ANTES de leer el role
+      if (req.user && req.user.role === "admin") {
+        next(); // ¡Adelante, jefe!
+        return;
+      } else {
+        res
+          .status(403)
+          .json({
+            message: "Acceso denegado: Zona exclusiva para administradores.",
+          });
+        return;
+      }
+    } catch (err) {
+      res.status(401).json({ message: "Token inválido o expirado." });
+      return;
+    }
+  } else {
+    res.status(401).json({ message: "No autorizado. Inicie sesión." });
+  }
+};

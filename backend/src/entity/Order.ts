@@ -29,13 +29,15 @@ export class Order {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  // --- NUEVOS CAMPOS PARA CHECKOUT DE INVITADOS (B2C) ---
+  // --- CAMPOS PARA CHECKOUT DE INVITADOS (B2C) ---
   @Column({ type: "varchar", length: 150, nullable: true })
   guestName: string;
 
   @Column({ type: "varchar", length: 20, nullable: true })
   guestDni: string;
-  // -----------------------------------------------------
+
+  @Column({ type: "varchar", length: 150, nullable: true }) // <-- NUEVA COLUMNA
+  guestEmail: string;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   items: OrderItem[];

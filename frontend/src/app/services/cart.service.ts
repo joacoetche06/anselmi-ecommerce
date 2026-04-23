@@ -92,4 +92,14 @@ export class CartService {
   getOrders(): Observable<any[]> {
     return this.http.get<any[]>('http://localhost:3001/api/orders');
   }
+
+  // Trae todas las órdenes del sistema (para Maxi)
+  getAllOrdersAdmin(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:3001/api/orders/admin/all');
+  }
+
+  // Permite cambiar el estado de una orden
+  updateOrderStatus(orderId: number, status: string): Observable<any> {
+    return this.http.patch(`http://localhost:3001/api/orders/${orderId}/status`, { status });
+  }
 }

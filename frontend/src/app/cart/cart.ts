@@ -17,6 +17,7 @@ export class Cart implements OnInit {
   isLoggedIn = false; // <-- Nueva variable
   guestName: string = ''; // <-- Nueva variable
   guestDni: string = ''; // <-- Nueva variable
+  guestEmail: string = ''; // <-- Nueva variable
 
   // Teléfono de prueba (después le ponemos el real de la empresa)
   // Formato internacional sin el "+" (Ej: 54 9 11 1234 5678)
@@ -52,8 +53,8 @@ export class Cart implements OnInit {
     if (this.cartItems.length === 0) return;
 
     // VALIDACIÓN: Si no está logueado, le exigimos nombre y DNI
-    if (!this.isLoggedIn && (!this.guestName || !this.guestDni)) {
-      alert('Por favor, completá tu Nombre y DNI para procesar el pedido.');
+    if (!this.isLoggedIn && (!this.guestName || !this.guestDni || !this.guestEmail)) {
+      alert('Por favor, completá Nombre, DNI y Email para procesar el pedido.');
       return;
     }
 
@@ -66,6 +67,7 @@ export class Cart implements OnInit {
       total: this.cartTotal,
       guestName: this.isLoggedIn ? null : this.guestName, // Mandamos los datos
       guestDni: this.isLoggedIn ? null : this.guestDni, // Mandamos los datos
+      guestEmail: this.isLoggedIn ? null : this.guestEmail, // <-- Lo mandamos al back
     };
 
     console.log('Enviando orden a la base de datos...', orderData);

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { CartService } from './services/cart.service';
 
@@ -12,6 +12,7 @@ import { CartService } from './services/cart.service';
 })
 export class App implements OnInit, OnDestroy {
   isLoggedIn = false;
+  isAdmin = false;
   cartItemCount = 0;
 
   // 1. Lista de frases de Maxi
@@ -30,10 +31,12 @@ export class App implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
     this.isLoggedIn = this.authService.isLoggedIn();
+    this.isAdmin = this.authService.isAdmin();
 
     this.cartService.cartItems$.subscribe((items) => {
       this.cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -55,7 +58,9 @@ export class App implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
-    this.isLoggedIn = false;
-    window.location.reload();
+    // En lugar de recargar la página, navegamos al catálogo
+    this.router.navigate(['/']).then(() => {
+      window.location.reload(); // Recargamos para limpiar estados globales y descuentos
+    });
   }
 }

@@ -28,10 +28,12 @@ export class Login {
 
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
-        // Si el login es exitoso, lo mandamos a la home y recargamos para que el catálogo aplique el descuento
-        this.router.navigate(['/']).then(() => {
-          window.location.reload();
-        });
+        // Redirección inteligente según el rol
+        if (this.authService.isAdmin()) {
+          this.router.navigate(['/admin-orders']).then(() => window.location.reload());
+        } else {
+          this.router.navigate(['/']).then(() => window.location.reload());
+        }
       },
       error: (err) => {
         this.errorMessage = err.error.message || 'Error al iniciar sesión.';

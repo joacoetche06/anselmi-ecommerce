@@ -30,3 +30,21 @@ Herramientas de Marketing y Ventas (Para potenciar la conversión)
     - Retención: Sistema de Email Marketing y recuperación de carritos abandonados.
 
     - Contacto Directo: Botón flotante de WhatsApp en toda la web
+
+
+
+
+
+USUARIOS DE PRUEBA
+
+joaco@prueba.com
+password123
+
+admin@anselmi.com
+admin
+
+prueba@prueba.com
+prueba
+
+prueba2@prueba.com
+prueba2

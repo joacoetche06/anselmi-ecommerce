@@ -1,0 +1,121 @@
+<main style="padding: 2rem; max-width: 600px; margin: 0 auto; font-family: sans-serif">
+  <h1 style="color: #333">Alta de Nuevo Cliente</h1>
+  <p style="color: #666; margin-bottom: 2rem">
+    Creá un usuario para que el cliente pueda acceder a sus descuentos mayoristas.
+  </p>
+
+  @if (successMessage) {
+    <div
+      style="
+        background: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      "
+    >
+      {{ successMessage }}
+    </div>
+  }
+  @if (errorMessage) {
+    <div
+      style="
+        background: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      "
+    >
+      {{ errorMessage }}
+    </div>
+  }
+
+  <form
+    (ngSubmit)="onSubmit()"
+    style="
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    "
+  >
+    <div style="margin-bottom: 1rem">
+      <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+        >Nombre o Razón Social *</label
+      >
+      <input
+        type="text"
+        [(ngModel)]="client.fullName"
+        name="fullName"
+        style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+      />
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+      <div style="flex: 1">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">Email *</label>
+        <input
+          type="email"
+          [(ngModel)]="client.email"
+          name="email"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        />
+      </div>
+      <div style="flex: 1">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">CUIT</label>
+        <input
+          type="text"
+          [(ngModel)]="client.cuit"
+          name="cuit"
+          placeholder="Opcional"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        />
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem">
+      <div style="flex: 1">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+          >Contraseña Temporal *</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="client.password"
+          name="password"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        />
+      </div>
+      <div style="flex: 1">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+          >Tipo de Cliente</label
+        >
+        <select
+          [(ngModel)]="client.role"
+          name="role"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        >
+          <option value="b2b">Mayorista (B2B)</option>
+          <option value="b2c">Minorista VIP (B2C)</option>
+        </select>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      style="
+        width: 100%;
+        padding: 1rem;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+      "
+    >
+      Registrar Cliente
+    </button>
+  </form>
+</main>

@@ -7,6 +7,7 @@ import { AdminOrders } from './admin-orders/admin-orders'; // <-- 3. Importamos 
 import { AdminGuard } from './guards/admin-guard'; // <-- Importalo
 import { AdminClients } from './admin-clients/admin-clients';
 import { authGuard } from './guards/auth-guard';
+import { OrderTracking } from './order-tracking/order-tracking';
 
 export const routes: Routes = [
   { path: '', component: Catalog },
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: 'my-orders', component: MyOrders, canActivate: [authGuard] },
   { path: 'admin-orders', component: AdminOrders, canActivate: [authGuard] },
   { path: 'admin-clients', component: AdminClients, canActivate: [authGuard] },
+  { path: 'track-order', component: OrderTracking },
 ];

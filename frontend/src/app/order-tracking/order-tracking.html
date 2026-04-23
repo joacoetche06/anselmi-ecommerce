@@ -1,0 +1,112 @@
+<main style="padding: 2rem; max-width: 600px; margin: 0 auto; font-family: sans-serif">
+  <h1 style="color: #333">Seguí tu Pedido</h1>
+  <p style="color: #666">Ingresá los datos de tu compra para conocer el estado actual.</p>
+
+  <div
+    style="
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    "
+  >
+    <div style="margin-bottom: 1rem">
+      <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+        >Número de Pedido</label
+      >
+      <input
+        type="text"
+        [(ngModel)]="orderId"
+        placeholder="Ej: 4"
+        style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+      />
+    </div>
+    <div style="margin-bottom: 1.5rem">
+      <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+        >Email de contacto</label
+      >
+      <input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="el_que_usaste@compra.com"
+        style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+      />
+    </div>
+    <button
+      (click)="consultar()"
+      [disabled]="loading"
+      style="
+        width: 100%;
+        padding: 1rem;
+        background: #0056b3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+      "
+    >
+      {{ loading ? 'Buscando...' : 'Consultar Estado' }}
+    </button>
+  </div>
+
+  @if (error) {
+    <p
+      style="
+        color: #dc3545;
+        font-weight: bold;
+        text-align: center;
+        background: #f8d7da;
+        padding: 1rem;
+        border-radius: 4px;
+      "
+    >
+      {{ error }}
+    </p>
+  }
+
+  @if (orderInfo) {
+    <div
+      style="
+        background: #e9ecef;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 5px solid #0056b3;
+      "
+    >
+      <h2 style="margin-top: 0">Pedido #{{ orderInfo.id }}</h2>
+      <p>
+        Estado:
+        <span
+          [style.background]="
+            orderInfo.status === 'pending'
+              ? '#ffc107'
+              : orderInfo.status === 'processing'
+                ? '#17a2b8'
+                : '#28a745'
+          "
+          style="
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #fff;
+          "
+        >
+          {{ orderInfo.status | uppercase }}
+        </span>
+      </p>
+      <p>Fecha: {{ orderInfo.createdAt | date: 'short' }}</p>
+      <hr style="border-top: 1px solid #ccc" />
+      <ul style="padding-left: 1.2rem; margin-top: 1rem">
+        @for (item of orderInfo.items; track item.name) {
+          <li style="margin-bottom: 0.5rem">{{ item.quantity }}x {{ item.name }}</li>
+        }
+      </ul>
+      <h3 style="text-align: right; color: #0056b3; margin-top: 1rem">
+        Total: ${{ orderInfo.totalAmount }}
+      </h3>
+    </div>
+  }
+</main>

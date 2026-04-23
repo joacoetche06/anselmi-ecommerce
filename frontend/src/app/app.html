@@ -9,7 +9,11 @@
     font-family: sans-serif;
   "
 >
-  <h2 style="margin: 0; color: #0056b3">Anselmi</h2>
+  <img
+    src="logo.jpeg"
+    alt="Logo"
+    style="max-width: 200px; height: auto; border-radius: 8px; margin-bottom: 25px"
+  />
 
   <div style="display: flex; gap: 1rem; align-items: center">
     @if (isAdmin) {
@@ -51,6 +55,12 @@
       >
         🛒 Mi Pedido ({{ cartItemCount }})
       </a>
+      <a
+        routerLink="/track-order"
+        style="color: #0056b3; font-weight: bold; text-decoration: none; margin-right: 1rem"
+      >
+        Seguí tu Pedido
+      </a>
 
       @if (isLoggedIn) {
         <a routerLink="/my-orders" style="color: #0056b3; font-weight: bold; text-decoration: none"
@@ -82,7 +92,7 @@
             font-weight: bold;
           "
         >
-          Iniciar Sesión Mayorista
+          Iniciar Sesión
         </a>
       }
     }

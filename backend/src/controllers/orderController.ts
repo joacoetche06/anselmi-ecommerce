@@ -162,37 +162,53 @@ export const updateOrderStatus = async (
   }
 };
 
+// --- FUNCIÓN PÚBLICA PARA SEGUIMIENTO DE INVITADOS ---
 export const trackOrder = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id, email } = req.query; // Lo recibimos por URL query string
+  const { id, email } = req.query;
+
+  if (!id || !email) {
+    res.status(400).json({ message: "Se requiere ID de pedido y Email." });
+    return;
+  }
 
   try {
     const orderRepository = AppDataSource.getRepository(Order);
 
-    // Buscamos una orden que coincida con el ID Y con el email del invitado
+    // Buscamos la orden que coincida con ambos datos
     const order = await orderRepository.findOne({
       where: {
         id: parseInt(id as string),
         guestEmail: email as string,
       },
+      relations: ["items", "items.product"], // Traemos los productos por si quiere ver qué compró
     });
 
     if (!order) {
       res
         .status(404)
-        .json({ message: "No encontramos ninguna orden con esos datos." });
+        .json({
+          message:
+            "No encontramos ningún pedido con esos datos. Verificá la información.",
+        });
       return;
     }
 
+    // Devolvemos solo lo necesario para el rastreo (seguridad)
     res.json({
       id: order.id,
       status: order.status,
-      total: order.totalAmount,
-      date: order.createdAt,
+      totalAmount: order.totalAmount,
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        name: item.product.name,
+        quantity: item.quantity,
+      })),
     });
   } catch (error) {
-    res.status(500).json({ message: "Error al consultar la orden" });
+    console.error("Error en rastreo:", error);
+    res.status(500).json({ message: "Error interno al consultar el pedido." });
   }
 };

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http'; // <-- 1. Importamos HttpClient
+import { BehaviorSubject, Observable } from 'rxjs'; // <-- 2. Sumamos Observable
 import { Product } from './product.service';
 
 export interface CartItem {
@@ -23,7 +24,7 @@ export class CartService {
   cartItems$ = this.cartSubject.asObservable();
   cartTotal$ = this.totalSubject.asObservable();
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   // 1. Agregar un producto al carrito
   addToCart(product: Product, quantity: number = 1) {
@@ -79,5 +80,16 @@ export class CartService {
     const total = this.items.reduce((sum, item) => sum + item.subtotal, 0);
     // Redondeamos para no tener errores de decimales extraños
     this.totalSubject.next(parseFloat(total.toFixed(2)));
+  }
+
+  // 4. AGREGAMOS ESTA NUEVA FUNCIÓN AL FINAL (antes de cerrar la clase)
+  submitOrder(orderData: any): Observable<any> {
+    return this.http.post('http://localhost:3001/api/orders', orderData);
+  }
+
+  // En src/app/services/cart.service.ts, agregá esto:
+
+  getOrders(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:3001/api/orders');
   }
 }

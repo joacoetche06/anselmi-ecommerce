@@ -6,14 +6,14 @@ import { AppDataSource } from "./data-source";
 import { Product } from "./entity/Product";
 import { register, login } from "./controllers/authController";
 import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
-
+import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
 // Inicializamos la aplicación Express
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-
+app.use("/api/orders", orderRoutes); // <-- Conectamos la ruta
 AppDataSource.initialize()
   .then(async () => {
     console.log(

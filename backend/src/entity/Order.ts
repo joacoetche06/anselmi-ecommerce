@@ -6,10 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from "typeorm";
 import { User } from "./User";
-
+import { OrderItem } from "./OrderItem"; // <-- Importar OrderItem
 export enum OrderStatus {
   PENDING = "pending", // Carrito activo / Pedido no finalizado
   CONFIRMED = "confirmed", // El cliente confirmó el pedido
@@ -24,9 +25,20 @@ export class Order {
   id: number;
 
   // Relación: Muchos pedidos pueden pertenecer a un usuario
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true }) // <-- Asegurate de que tenga nullable: true
   @JoinColumn({ name: "user_id" })
   user: User;
+
+  // --- NUEVOS CAMPOS PARA CHECKOUT DE INVITADOS (B2C) ---
+  @Column({ type: "varchar", length: 150, nullable: true })
+  guestName: string;
+
+  @Column({ type: "varchar", length: 20, nullable: true })
+  guestDni: string;
+  // -----------------------------------------------------
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  items: OrderItem[];
 
   @Column({
     type: "enum",

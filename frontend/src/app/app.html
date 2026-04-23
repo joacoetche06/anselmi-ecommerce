@@ -28,6 +28,11 @@
     </a>
 
     @if (isLoggedIn) {
+      <a
+        routerLink="/my-orders"
+        style="margin-right: 1rem; color: #0056b3; text-decoration: none; font-weight: bold"
+        >Mis Pedidos</a
+      >
       <button
         (click)="logout()"
         style="

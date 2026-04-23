@@ -75,6 +75,26 @@
         </tbody>
       </table>
 
+      @if (!isLoggedIn) {
+        <div style="padding: 1.5rem; background: #fff; border-top: 1px solid #ddd">
+          <h3 style="margin-top: 0; color: #333">Tus datos para el pedido</h3>
+          <div style="display: flex; gap: 1rem">
+            <input
+              type="text"
+              [(ngModel)]="guestName"
+              placeholder="Nombre y Apellido"
+              style="flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            />
+            <input
+              type="text"
+              [(ngModel)]="guestDni"
+              placeholder="DNI"
+              style="flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            />
+          </div>
+        </div>
+      }
+
       <div
         style="
           padding: 1.5rem;

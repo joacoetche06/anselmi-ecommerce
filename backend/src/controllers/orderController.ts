@@ -3,6 +3,12 @@ import { AppDataSource } from "../data-source";
 import { Order, OrderStatus } from "../entity/Order";
 import { OrderItem } from "../entity/OrderItem";
 import { User } from "../entity/User"; // Importamos User por las dudas
+import { MercadoPagoConfig, Preference } from "mercadopago";
+
+const client = new MercadoPagoConfig({
+  accessToken:
+    "APP_USR-7958447396573219-042816-35a7ad716eeac92d24226fbabc817b48-3366635716",
+});
 
 export const createOrder = async (
   req: Request,
@@ -54,13 +60,60 @@ export const createOrder = async (
       await orderItemRepository.save(newOrderItem);
     }
 
+    // ... código anterior (el for de los items)
+
     console.log("Orden guardada con ID:", savedOrder.id);
     console.log("------------------------------");
 
-    res.status(201).json({
-      message: "¡Pedido guardado con éxito!",
-      orderId: savedOrder.id,
-    });
+    // === NUEVA LÓGICA DE RUTEO B2B / B2C ===
+    if (!userId) {
+      // --- FLUJO B2C: INVITADOS (MERCADO PAGO) ---
+      // --- FLUJO B2C: INVITADOS ---
+      // Creamos la preferencia de pago en Mercado Pago
+      const preference = new Preference(client);
+
+      // 1. Armamos los items con los datos REALES del carrito
+      const mpItems = items.map((item: any) => ({
+        id: item.productId.toString(),
+        title: item.productName || "Producto Anselmi",
+        quantity: Number(item.quantity), // <-- CANTIDAD REAL
+        unit_price: Number(item.price), // <-- PRECIO REAL
+        currency_id: "ARS",
+      }));
+
+      console.log("Enviando a Mercado Pago:", mpItems);
+
+      // 2. Creamos la preferencia SIN auto_return
+      const prefResponse = await preference.create({
+        body: {
+          items: mpItems,
+          payer: {
+            email: "TESTUSER713025825533981039@testuser.com", // Tu comprador de prueba
+          },
+          external_reference: savedOrder.id.toString(),
+          back_urls: {
+            success: "http://localhost:4200/track-order",
+            failure: "http://localhost:4200/cart",
+            pending: "http://localhost:4200/track-order",
+          },
+          // Eliminamos auto_return para que no bloquee las URLs de localhost
+        },
+      });
+
+      // Le mandamos al Frontend el link de pago (init_point)
+      res.status(201).json({
+        message: "Redirigiendo a Mercado Pago...",
+        orderId: savedOrder.id,
+        init_point: prefResponse.init_point,
+      });
+    } else {
+      // --- FLUJO B2B: MAYORISTAS ---
+      // Flujo tradicional, sin pasarela de pago
+      res.status(201).json({
+        message: "¡Pedido guardado con éxito!",
+        orderId: savedOrder.id,
+      });
+    }
   } catch (error) {
     console.error("ERROR AL GUARDAR ORDEN:", error);
     res.status(500).json({ message: "Error interno al procesar el pedido" });
@@ -187,12 +240,10 @@ export const trackOrder = async (
     });
 
     if (!order) {
-      res
-        .status(404)
-        .json({
-          message:
-            "No encontramos ningún pedido con esos datos. Verificá la información.",
-        });
+      res.status(404).json({
+        message:
+          "No encontramos ningún pedido con esos datos. Verificá la información.",
+      });
       return;
     }
 

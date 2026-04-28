@@ -46,13 +46,9 @@ export class Cart implements OnInit {
     this.cartService.removeFromCart(productId);
   }
 
-  // Borrá checkoutWhatsApp() y agregá esto:
-
-  // REEMPLAZAMOS EL CHECKOUT POR ESTO:
   checkout() {
     if (this.cartItems.length === 0) return;
 
-    // VALIDACIÓN: Si no está logueado, le exigimos nombre y DNI
     if (!this.isLoggedIn && (!this.guestName || !this.guestDni || !this.guestEmail)) {
       alert('Por favor, completá Nombre, DNI y Email para procesar el pedido.');
       return;
@@ -61,23 +57,31 @@ export class Cart implements OnInit {
     const orderData = {
       items: this.cartItems.map((item) => ({
         productId: item.product.id,
+        productName: item.product.name, // <-- 1. NUEVO: Enviamos el nombre para MP
         quantity: item.quantity,
         price: item.product.finalPrice,
       })),
       total: this.cartTotal,
-      guestName: this.isLoggedIn ? null : this.guestName, // Mandamos los datos
-      guestDni: this.isLoggedIn ? null : this.guestDni, // Mandamos los datos
-      guestEmail: this.isLoggedIn ? null : this.guestEmail, // <-- Lo mandamos al back
+      guestName: this.isLoggedIn ? null : this.guestName,
+      guestDni: this.isLoggedIn ? null : this.guestDni,
+      guestEmail: this.isLoggedIn ? null : this.guestEmail,
     };
 
     console.log('Enviando orden a la base de datos...', orderData);
 
-    // Disparamos la petición HTTP al backend
     this.cartService.submitOrder(orderData).subscribe({
       next: (response) => {
-        alert('¡Pedido confirmado con éxito! Tu número de orden es: #' + response.orderId);
         this.cartService.clearCart(); // Vaciamos el carrito local
-        this.router.navigate(['/']); // Redirigimos al catálogo
+
+        // 2. NUEVA LÓGICA DE REDIRECCIÓN
+        if (response.init_point) {
+          // Es un invitado, lo mandamos a la pantalla de Mercado Pago
+          window.location.href = response.init_point;
+        } else {
+          // Es mayorista, le mostramos la alerta normal
+          alert('¡Pedido confirmado con éxito! Tu número de orden es: #' + response.orderId);
+          this.router.navigate(['/']);
+        }
       },
       error: (err) => {
         console.error('Error al confirmar la compra:', err);

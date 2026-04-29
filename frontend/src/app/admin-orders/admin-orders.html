@@ -20,7 +20,7 @@
           <th style="padding: 1rem; text-align: left">Productos</th>
           <th style="padding: 1rem; text-align: left">Total</th>
           <th style="padding: 1rem; text-align: left">Estado</th>
-          <th style="padding: 1rem; text-align: left">Acciones</th>
+          <th style="padding: 1rem; text-align: left">Modificar Estado</th>
         </tr>
       </thead>
       <tbody>
@@ -55,12 +55,26 @@
             <td style="padding: 1rem; font-weight: bold">${{ order.totalAmount }}</td>
             <td style="padding: 1rem">
               <span
-                [style.background]="order.status === 'pending' ? '#ffc107' : '#28a745'"
+                [style.background]="
+                  order.status === 'confirmed'
+                    ? '#d4edda'
+                    : order.status === 'pending'
+                      ? '#fff3cd'
+                      : '#e2e3e5'
+                "
+                [style.color]="
+                  order.status === 'confirmed'
+                    ? '#155724'
+                    : order.status === 'pending'
+                      ? '#856404'
+                      : '#383d41'
+                "
                 style="
                   padding: 0.3rem 0.6rem;
                   border-radius: 4px;
                   font-size: 0.75rem;
                   font-weight: bold;
+                  text-transform: uppercase;
                 "
               >
                 {{ order.status }}
@@ -71,10 +85,21 @@
                 (change)="changeStatus(order.id, $any($event.target).value)"
                 style="padding: 0.3rem; border-radius: 4px"
               >
-                <option value="pending" [selected]="order.status === 'pending'">Pendiente</option>
-                <option value="processing">En Preparación</option>
-                <option value="completed">Completado</option>
-                <option value="cancelled">Cancelado</option>
+                <option value="pending" [selected]="order.status === 'pending'">
+                  Pendiente de Pago
+                </option>
+                <option value="confirmed" [selected]="order.status === 'confirmed'">
+                  Pagado / Confirmado
+                </option>
+                <option value="processing" [selected]="order.status === 'processing'">
+                  En Preparación
+                </option>
+                <option value="completed" [selected]="order.status === 'completed'">
+                  Completado
+                </option>
+                <option value="cancelled" [selected]="order.status === 'cancelled'">
+                  Cancelado
+                </option>
               </select>
             </td>
           </tr>

@@ -1,50 +1,209 @@
-<main style="padding: 2rem; font-family: sans-serif">
-  <h1>Catálogo Anselmi - Nivel Minorista</h1>
-
+<main style="padding: 2rem; font-family: sans-serif; max-width: 1200px; margin: 0 auto">
   <div
-    style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))"
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    "
   >
-    @for (product of products; track product.id) {
-      <div style="border: 1px solid #ccc; padding: 1rem; border-radius: 8px">
-        <p style="color: gray; font-size: 0.8rem; margin: 0">SKU: {{ product.sku }}</p>
-        <h3 style="margin: 0.5rem 0">{{ product.name }}</h3>
+    <h1 style="color: #333; margin: 0">Catálogo Anselmi</h1>
 
-        <h2 style="color: #0056b3; margin: 0.5rem 0">${{ product.finalPrice }}</h2>
-
-        @if ((product?.appliedDiscount ?? 0) > 0) {
-          <span
-            style="
-              background: #28a745;
-              color: white;
-              padding: 0.2rem 0.5rem;
-              border-radius: 4px;
-              font-size: 0.8rem;
-              font-weight: bold;
-            "
-          >
-            {{ product?.appliedDiscount }}% OFF Aplicado
-          </span>
-        }
-
+    <div style="display: flex; gap: 1rem; align-items: center">
+      <div style="display: flex">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar nombre o SKU..."
+          style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px 0 0 4px; outline: none"
+          (keyup.enter)="loadProducts()"
+        />
         <button
-          (click)="addToCart(product)"
+          (click)="loadProducts()"
           style="
-            margin-top: 1rem;
             padding: 0.5rem 1rem;
-            background: #28a745;
+            background: #0056b3;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 0 4px 4px 0;
             cursor: pointer;
-            display: block;
-            width: 100%;
           "
         >
-          Agregar al carrito
+          🔍
         </button>
       </div>
-    } @empty {
-      <p>Cargando catálogo desde el sistema...</p>
-    }
+
+      <select
+        [(ngModel)]="selectedOrder"
+        (change)="loadProducts()"
+        style="
+          padding: 0.6rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          outline: none;
+          cursor: pointer;
+        "
+      >
+        <option value="">Ordenar por Novedad</option>
+        <option value="price_asc">Precio: Menor a Mayor</option>
+        <option value="price_desc">Precio: Mayor a Menor</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 2rem; align-items: flex-start">
+    <aside style="width: 250px; flex-shrink: 0">
+      <h3 style="margin-top: 0; color: #555; border-bottom: 1px solid #eee; padding-bottom: 0.5rem">
+        Filtros
+      </h3>
+
+      <div style="margin-bottom: 1.5rem">
+        <h4 style="margin-bottom: 0.5rem; color: #333">Línea</h4>
+        <ul
+          style="
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.8;
+          "
+        >
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedLines, 'Libby')" /> Libby (10)
+          </li>
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedLines, 'Margot')" /> Margot (5)
+          </li>
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedLines, 'Temple')" /> Temple (14)
+          </li>
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedLines, 'California')" />
+            California (12)
+          </li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <h4 style="margin-bottom: 0.5rem; color: #333">Color / Acabado</h4>
+        <ul
+          style="
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.8;
+          "
+        >
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedColors, 'Cromo')" /> Cromo (682)
+          </li>
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedColors, 'Negro Mate')" /> Negro
+            Mate (84)
+          </li>
+          <li>
+            <input type="checkbox" (change)="toggleFilter(selectedColors, 'Acero Inoxidable')" />
+            Acero Inoxidable (24)
+          </li>
+        </ul>
+      </div>
+
+      <p style="font-size: 0.8rem; color: #999; font-style: italic">
+        (Filtros en construcción. Pendientes de datos del sistema Aleph).
+      </p>
+    </aside>
+
+    <section style="flex-grow: 1">
+      <div
+        style="
+          display: grid;
+          gap: 1rem;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        "
+      >
+        @for (product of products; track product.id) {
+          <div
+            style="
+              border: 1px solid #eee;
+              padding: 1.5rem;
+              border-radius: 8px;
+              background: white;
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            "
+          >
+            <p style="color: gray; font-size: 0.8rem; margin: 0">SKU: {{ product.sku }}</p>
+            <h3 style="margin: 0.5rem 0; font-size: 1.1rem; color: #333">{{ product.name }}</h3>
+
+            <h2 style="color: #0056b3; margin: 0.5rem 0">${{ product.finalPrice }}</h2>
+
+            @if ((product?.appliedDiscount ?? 0) > 0) {
+              <span
+                style="
+                  background: #28a745;
+                  color: white;
+                  padding: 0.2rem 0.5rem;
+                  border-radius: 4px;
+                  font-size: 0.8rem;
+                  font-weight: bold;
+                "
+              >
+                {{ product?.appliedDiscount }}% OFF
+              </span>
+            }
+
+            <button
+              (click)="addToCart(product)"
+              style="
+                margin-top: 1rem;
+                padding: 0.6rem 1rem;
+                background: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                display: block;
+                width: 100%;
+                font-weight: bold;
+              "
+            >
+              Agregar al carrito
+            </button>
+          </div>
+        } @empty {
+          <div
+            style="
+              grid-column: 1 / -1;
+              text-align: center;
+              padding: 3rem;
+              background: #f9f9f9;
+              border-radius: 8px;
+            "
+          >
+            <p style="color: #666; font-size: 1.1rem">
+              No se encontraron productos que coincidan con tu búsqueda.
+            </p>
+            <button
+              (click)="searchTerm = ''; selectedOrder = ''; loadProducts()"
+              style="
+                margin-top: 1rem;
+                padding: 0.5rem 1rem;
+                background: #0056b3;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+              "
+            >
+              Limpiar Búsqueda
+            </button>
+          </div>
+        }
+      </div>
+    </section>
   </div>
 </main>

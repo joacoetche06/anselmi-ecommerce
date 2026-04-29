@@ -48,3 +48,15 @@ prueba
 
 prueba2@prueba.com
 prueba2
+
+CUENTAS PRUEBA MERCADOPAGO
+
+Comprador:
+    TESTUSER713025825533981039
+    Jwb9nkclPs
+    056563
+
+Vendedor:
+    TESTUSER7007998307536401193
+    PEseMGOwVn
+    635716

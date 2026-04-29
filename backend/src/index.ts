@@ -8,7 +8,7 @@ import { register, login } from "./controllers/authController";
 import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
 import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
 import productRoutes from "./routes/productRoutes";
-
+import { getPublicProducts } from "./controllers/productController";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -31,13 +31,13 @@ AppDataSource.initialize()
       optionalAuth,
       async (req: AuthRequest, res: Response) => {
         try {
-          const productRepo = AppDataSource.getRepository(Product);
-          const products = await productRepo.find();
+          // 🔥 ACÁ ESTÁ LA MAGIA: Llamamos a tu función con filtros
+          const products = await getPublicProducts(req);
 
           // ¿El usuario se logueó? Sacamos su descuento. Si es invitado, es 0.
           const userDiscount = req.user ? req.user.discount : 0;
 
-          // Recorremos los 710 productos y calculamos en tiempo real
+          // Recorremos los productos y calculamos en tiempo real
           const productsWithDynamicPricing = products.map((p) => {
             const netoAleph = Number(p.listPrice);
 
@@ -63,6 +63,7 @@ AppDataSource.initialize()
         }
       },
     );
+
     // 2. Rutas de Autenticación
     app.post("/api/auth/register", register);
     app.post("/api/auth/login", login);

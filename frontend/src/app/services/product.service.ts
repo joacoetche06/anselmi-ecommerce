@@ -28,8 +28,8 @@ export class ProductService {
   constructor(private http: HttpClient) {}
 
   // Usado por el Catálogo (Pega en tu index.ts)
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
+  getProducts(queryParams: string = ''): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}${queryParams}`);
   }
 
   // Usado por el Panel de Admin (Pega en la nueva ruta cruda)

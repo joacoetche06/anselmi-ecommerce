@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Product } from "../entity/Product";
+import { ILike } from "typeorm";
 
-// --- OBTENER TODOS LOS PRODUCTOS PARA ADMIN (Crudos) ---
+// --- OBTENER TODOS LOS PRODUCTOS PARA ADMIN (Crudos y sin filtros) ---
 export const getAdminProducts = async (
   req: Request,
   res: Response,
@@ -14,11 +15,43 @@ export const getAdminProducts = async (
     });
     res.json(products);
   } catch (error) {
-    console.error("Error al obtener productos:", error);
-    res.status(500).json({ message: "Error interno al cargar el catálogo" });
+    console.error("Error al obtener productos de admin:", error);
+    res.status(500).json({ message: "Error al cargar catálogo" });
   }
 };
-// (El resto del archivo dejalo igual)
+
+// --- OBTENER PRODUCTOS PARA EL CATÁLOGO (Con filtros y búsqueda) ---
+// (Esta función será llamada desde tu index.ts)
+export const getPublicProducts = async (req: Request): Promise<Product[]> => {
+  const productRepo = AppDataSource.getRepository(Product);
+
+  const { search, orderBy, ...filters } = req.query;
+  let whereConditions: any = { isActive: true };
+
+  if (search) {
+    whereConditions = [
+      { ...whereConditions, name: ILike(`%${search}%`) },
+      { ...whereConditions, sku: ILike(`%${search}%`) },
+    ];
+  }
+
+  Object.keys(filters).forEach((key) => {
+    if (filters[key]) {
+      whereConditions[key] = filters[key];
+    }
+  });
+
+  let order: any = { id: "DESC" };
+  if (orderBy === "price_asc") order = { listPrice: "ASC" };
+  if (orderBy === "price_desc") order = { listPrice: "DESC" };
+
+  return await productRepo.find({
+    where: whereConditions,
+    order: order,
+  });
+};
+
+// ... (Acá sigue tu código de createProduct, updateProduct, deleteProduct) ...
 
 // --- CREAR UN NUEVO PRODUCTO ---
 export const createProduct = async (

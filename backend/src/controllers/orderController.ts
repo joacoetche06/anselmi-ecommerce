@@ -3,7 +3,7 @@ import { AppDataSource } from "../data-source";
 import { Order, OrderStatus } from "../entity/Order";
 import { OrderItem } from "../entity/OrderItem";
 import { User } from "../entity/User"; // Importamos User por las dudas
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 
 const client = new MercadoPagoConfig({
   accessToken:
@@ -60,8 +60,6 @@ export const createOrder = async (
       await orderItemRepository.save(newOrderItem);
     }
 
-    // ... código anterior (el for de los items)
-
     console.log("Orden guardada con ID:", savedOrder.id);
     console.log("------------------------------");
 
@@ -88,7 +86,7 @@ export const createOrder = async (
         body: {
           items: mpItems,
           payer: {
-            email: "TESTUSER713025825533981039@testuser.com", // Tu comprador de prueba
+            email: "TESTUSER713025825533981039@testuser.com",
           },
           external_reference: savedOrder.id.toString(),
           back_urls: {
@@ -96,7 +94,9 @@ export const createOrder = async (
             failure: "http://localhost:4200/cart",
             pending: "http://localhost:4200/track-order",
           },
-          // Eliminamos auto_return para que no bloquee las URLs de localhost
+          // AÑADIMOS EL WEBHOOK ACÁ:
+          notification_url:
+            "https://plastic-decal-tactful.ngrok-free.dev/api/orders/webhook",
         },
       });
 
@@ -291,5 +291,49 @@ export const confirmPayment = async (
     }
   } else {
     res.status(400).json({ message: "Pago no aprobado o faltan datos" });
+  }
+};
+
+// --- WEBHOOK DE MERCADO PAGO ---
+export const mpWebhook = async (req: Request, res: Response): Promise<void> => {
+  // 1. REGLA DE ORO: MP exige que le respondamos un 200 OK inmediatamente (si no, nos bloquea reintentando infinitamente)
+  res.status(200).send("OK");
+
+  try {
+    // MP manda el ID del pago en req.query.id (para webhooks estándar) o en data.id
+    const paymentId = req.query.id || req.body?.data?.id;
+    const type = req.query.topic || req.query.type || req.body?.type;
+
+    if ((type === "payment" || type === "payment.created") && paymentId) {
+      console.log(
+        `[WEBHOOK] 🔔 Notificación de pago recibida. ID: ${paymentId}`,
+      );
+
+      // 2. Le preguntamos a MP el estado real de este pago (para evitar que alguien nos mande un webhook falso)
+      const payment = new Payment(client);
+      const paymentInfo = await payment.get({ id: paymentId as string });
+
+      // 3. Si está aprobado, buscamos nuestra orden usando el external_reference
+      if (paymentInfo.status === "approved" && paymentInfo.external_reference) {
+        const orderRepository = AppDataSource.getRepository(Order);
+        const orderId = parseInt(paymentInfo.external_reference);
+
+        const order = await orderRepository.findOneBy({ id: orderId });
+
+        if (order && order.status === OrderStatus.PENDING) {
+          order.status = OrderStatus.CONFIRMED;
+          await orderRepository.save(order);
+          console.log(
+            `[WEBHOOK] ✅ ÉXITO: Orden #${order.id} pagada y confirmada en segundo plano.`,
+          );
+        } else {
+          console.log(
+            `[WEBHOOK] ℹ️ La orden #${orderId} ya estaba confirmada previamente o no existe.`,
+          );
+        }
+      }
+    }
+  } catch (error) {
+    console.error("[WEBHOOK] ❌ Error procesando la notificación:", error);
   }
 };

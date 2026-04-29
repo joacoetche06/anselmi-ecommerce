@@ -33,13 +33,13 @@ export class CartService {
     if (existingItem) {
       // Si ya estaba, le sumamos la cantidad
       existingItem.quantity += quantity;
-      existingItem.subtotal = existingItem.quantity * product.finalPrice;
+      existingItem.subtotal = existingItem.quantity * (product.finalPrice ?? 0);
     } else {
       // Si es nuevo, lo empujamos a la lista
       this.items.push({
         product,
         quantity,
-        subtotal: product.finalPrice * quantity,
+        subtotal: (product.finalPrice ?? 0) * quantity,
       });
     }
 
@@ -60,7 +60,7 @@ export class CartService {
         this.removeFromCart(productId);
       } else {
         item.quantity = quantity;
-        item.subtotal = item.quantity * item.product.finalPrice;
+        item.subtotal = item.quantity * (item.product.finalPrice ?? 0);
         this.updateCart();
       }
     }

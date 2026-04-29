@@ -11,7 +11,7 @@
 
         <h2 style="color: #0056b3; margin: 0.5rem 0">${{ product.finalPrice }}</h2>
 
-        @if (product.appliedDiscount > 0) {
+        @if ((product?.appliedDiscount ?? 0) > 0) {
           <span
             style="
               background: #28a745;
@@ -22,7 +22,7 @@
               font-weight: bold;
             "
           >
-            {{ product.appliedDiscount }}% OFF Aplicado
+            {{ product?.appliedDiscount }}% OFF Aplicado
           </span>
         }
 

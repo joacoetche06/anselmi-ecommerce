@@ -1,0 +1,312 @@
+<main style="padding: 2rem; max-width: 1100px; margin: 0 auto; font-family: sans-serif">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 0.5rem;
+    "
+  >
+    <h1 style="color: #333; margin: 0">Gestión de Catálogo</h1>
+    <button
+      (click)="openCreateModal()"
+      style="
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      "
+    >
+      + Nuevo Producto
+    </button>
+  </div>
+
+  @if (loading) {
+    <p style="text-align: center; margin-top: 2rem">Cargando catálogo...</p>
+  } @else if (error) {
+    <div
+      style="
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 1rem;
+      "
+    >
+      <strong>Error:</strong> {{ error }}
+    </div>
+  } @else {
+    <div
+      style="
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 1.5rem;
+      "
+    >
+      <table style="width: 100%; border-collapse: collapse; text-align: left">
+        <thead style="background: #f4f4f4">
+          <tr>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">ID</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Imagen</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Nombre / SKU</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Precio (Base)</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Stock</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd; text-align: center">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products; track product.id) {
+            <tr
+              style="transition: background 0.2s"
+              onmouseover="this.style.background = '#f9f9f9'"
+              onmouseout="this.style.background = 'white'"
+            >
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <strong>#{{ product.id }}</strong>
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <img
+                  [src]="product.imageUrl || 'placeholder.png'"
+                  alt="Img"
+                  style="
+                    width: 50px;
+                    height: 50px;
+                    object-fit: cover;
+                    border-radius: 4px;
+                    border: 1px solid #ccc;
+                  "
+                />
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                {{ product.name }}<br />
+                <small style="color: gray">SKU: {{ product.sku }}</small>
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">${{ product.listPrice }}</td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <span
+                  [style.color]="product.stockQuantity > 0 ? '#155724' : '#dc3545'"
+                  style="font-weight: bold"
+                >
+                  {{ product.stockQuantity }} un.
+                </span>
+              </td>
+              <td
+                style="
+                  padding: 1rem;
+                  border-bottom: 1px solid #eee;
+                  text-align: center;
+                  display: flex;
+                  gap: 0.5rem;
+                  justify-content: center;
+                "
+              >
+                <button
+                  (click)="openEditModal(product)"
+                  style="
+                    background: #ffc107;
+                    color: #333;
+                    border: none;
+                    padding: 0.4rem 0.8rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                  "
+                >
+                  Editar
+                </button>
+                <button
+                  (click)="deleteProduct(product.id)"
+                  style="
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 0.4rem 0.8rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                  "
+                >
+                  Borrar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
+@if (showModal) {
+  <div
+    style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    "
+  >
+    <div
+      style="
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      "
+    >
+      <h2 style="margin-top: 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5rem">
+        {{ isEditing ? 'Editar Producto' : 'Nuevo Producto' }}
+      </h2>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem">
+        <div>
+          <label style="font-weight: bold; font-size: 0.9rem; color: #555"
+            >Nombre del Producto</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="currentProduct.name"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              margin-top: 0.3rem;
+            "
+            placeholder="Ej: Ducha Libby Cromo"
+          />
+        </div>
+
+        <div style="display: flex; gap: 1rem">
+          <div style="flex: 1">
+            <label style="font-weight: bold; font-size: 0.9rem; color: #555">Código (SKU)</label>
+            <input
+              type="text"
+              [(ngModel)]="currentProduct.sku"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 0.3rem;
+              "
+              placeholder="Ej: 106/39"
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="font-weight: bold; font-size: 0.9rem; color: #555">Stock Inicial</label>
+            <input
+              type="number"
+              [(ngModel)]="currentProduct.stockQuantity"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 0.3rem;
+              "
+            />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem">
+          <div style="flex: 1">
+            <label style="font-weight: bold; font-size: 0.9rem; color: #555"
+              >Precio Final ($)</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="currentProduct.listPrice"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 0.3rem;
+              "
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="font-weight: bold; font-size: 0.9rem; color: #555">Descuento (%)</label>
+            <input
+              type="number"
+              [(ngModel)]="currentProduct.discountPercentage"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 0.3rem;
+              "
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style="font-weight: bold; font-size: 0.9rem; color: #555"
+            >URL de Imagen (Opcional)</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="currentProduct.imageUrl"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              margin-top: 0.3rem;
+            "
+            placeholder="https://..."
+          />
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem">
+        <button
+          (click)="closeModal()"
+          style="
+            padding: 0.8rem 1.5rem;
+            background: #eee;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+          "
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="saveProduct()"
+          style="
+            padding: 0.8rem 1.5rem;
+            background: #0056b3;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+          "
+        >
+          Guardar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+}

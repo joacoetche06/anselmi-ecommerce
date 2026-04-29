@@ -7,8 +7,16 @@ export interface Product {
   sku: string;
   name: string;
   stockQuantity: number;
-  finalPrice: number; // <-- Cambiamos listPrice por esto
-  appliedDiscount: number; // <-- Agregamos el descuento
+
+  // Datos Crudos de la BD (Panel de Maxi)
+  listPrice: number;
+  discountPercentage: number;
+
+  // Datos Calculados por index.ts (Catálogo y Carrito)
+  finalPrice?: number;
+  appliedDiscount?: number;
+
+  imageUrl?: string;
 }
 
 @Injectable({
@@ -19,7 +27,25 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
+  // Usado por el Catálogo (Pega en tu index.ts)
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
+  }
+
+  // Usado por el Panel de Admin (Pega en la nueva ruta cruda)
+  getAdminProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/admin/all`);
+  }
+
+  createProduct(productData: Partial<Product>): Observable<any> {
+    return this.http.post(this.apiUrl, productData);
+  }
+
+  updateProduct(id: number, productData: Partial<Product>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, productData);
+  }
+
+  deleteProduct(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

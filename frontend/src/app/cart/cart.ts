@@ -19,6 +19,8 @@ export class Cart implements OnInit {
   guestDni: string = ''; // <-- Nueva variable
   guestEmail: string = ''; // <-- Nueva variable
 
+  isRedirecting: boolean = false;
+
   // Teléfono de prueba (después le ponemos el real de la empresa)
   // Formato internacional sin el "+" (Ej: 54 9 11 1234 5678)
   companyPhone: string = '5491112345678';
@@ -49,9 +51,27 @@ export class Cart implements OnInit {
   checkout() {
     if (this.cartItems.length === 0) return;
 
-    if (!this.isLoggedIn && (!this.guestName || !this.guestDni || !this.guestEmail)) {
-      alert('Por favor, completá Nombre, DNI y Email para procesar el pedido.');
-      return;
+    // VALIDACIONES DE INVITADO
+    if (!this.isLoggedIn) {
+      // 1. Que no estén vacíos
+      if (!this.guestName || !this.guestDni || !this.guestEmail) {
+        alert('Por favor, completá Nombre, DNI y Email para procesar el pedido.');
+        return;
+      }
+
+      // 2. Que el email tenga un formato válido (ej: nombre@dominio.com)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.guestEmail)) {
+        alert('Por favor, ingresá un correo electrónico válido.');
+        return;
+      }
+
+      // 3. Que el DNI sean solo números (entre 7 y 8 dígitos)
+      const dniRegex = /^\d{7,8}$/;
+      if (!dniRegex.test(this.guestDni)) {
+        alert('Por favor, ingresá un DNI válido (solo números, sin puntos).');
+        return;
+      }
     }
 
     const orderData = {
@@ -71,14 +91,14 @@ export class Cart implements OnInit {
 
     this.cartService.submitOrder(orderData).subscribe({
       next: (response) => {
-        this.cartService.clearCart(); // Vaciamos el carrito local
-
-        // 2. NUEVA LÓGICA DE REDIRECCIÓN
         if (response.init_point) {
-          // Es un invitado, lo mandamos a la pantalla de Mercado Pago
-          window.location.href = response.init_point;
+          // --- FLUJO INVITADO (MERCADO PAGO) ---
+          this.isRedirecting = true; // 1. Activamos la pantalla de carga
+          this.cartService.clearCart(); // 2. Vaciamos el carrito local (ahora no se va a ver)
+          window.location.href = response.init_point; // 3. Redirigimos
         } else {
-          // Es mayorista, le mostramos la alerta normal
+          // --- FLUJO MAYORISTA (B2B) ---
+          this.cartService.clearCart();
           alert('¡Pedido confirmado con éxito! Tu número de orden es: #' + response.orderId);
           this.router.navigate(['/']);
         }

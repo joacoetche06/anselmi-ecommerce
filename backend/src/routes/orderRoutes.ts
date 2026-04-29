@@ -5,6 +5,7 @@ import {
   getAllOrders,
   updateOrderStatus,
   trackOrder,
+  confirmPayment,
 } from "../controllers/orderController";
 import { optionalAuth, requireAdmin } from "../middleware/authMiddleware"; // <-- 1. Importamos el middleware
 
@@ -17,5 +18,5 @@ router.patch("/:id/status", requireAdmin, updateOrderStatus); // <-- NUEVA RUTA 
 // Rutas de clientes
 router.get("/", optionalAuth, getUserOrders);
 router.post("/", optionalAuth, createOrder);
-
+router.post("/confirm-payment", confirmPayment);
 export default router;

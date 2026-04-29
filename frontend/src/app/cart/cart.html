@@ -1,135 +1,194 @@
 <main style="padding: 2rem; max-width: 800px; margin: 0 auto; font-family: sans-serif">
-  <h1 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem">Mi Pedido</h1>
-
-  @if (cartItems.length === 0) {
-    <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 8px">
-      <h3 style="color: #666">Tu carrito está vacío 😔</h3>
-      <a
-        routerLink="/"
-        style="
-          display: inline-block;
-          margin-top: 1rem;
-          padding: 0.8rem 1.5rem;
-          background: #0056b3;
-          color: white;
-          text-decoration: none;
-          border-radius: 4px;
-          cursor: pointer;
-        "
-        >Volver al catálogo</a
-      >
+  @if (isRedirecting) {
+    <div
+      style="
+        text-align: center;
+        padding: 5rem 20px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-top: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      "
+    >
+      <h2 style="color: #0056b3; margin-bottom: 1rem">Redirigiendo a Mercado Pago... 🔒</h2>
+      <p style="color: #555; font-size: 1.1rem">
+        Por favor, esperá unos segundos. Te estamos llevando a un entorno seguro para finalizar tu
+        compra.
+      </p>
     </div>
   } @else {
-    <div style="background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden">
-      <table style="width: 100%; border-collapse: collapse; text-align: left">
-        <thead style="background: #f4f4f4">
-          <tr>
-            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Producto</th>
-            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Precio U.</th>
-            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Cant.</th>
-            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Subtotal</th>
-            <th style="padding: 1rem; border-bottom: 1px solid #ddd"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of cartItems; track item.product.id) {
-            <tr>
-              <td style="padding: 1rem; border-bottom: 1px solid #eee">
-                <strong>{{ item.product.name }}</strong
-                ><br />
-                <small style="color: gray">SKU: {{ item.product.sku }}</small>
-              </td>
-              <td style="padding: 1rem; border-bottom: 1px solid #eee">
-                ${{ item.product.finalPrice }}
-              </td>
-              <td style="padding: 1rem; border-bottom: 1px solid #eee">
-                <input
-                  type="number"
-                  min="1"
-                  [value]="item.quantity"
-                  (change)="onQuantityChange(item.product.id, $event)"
-                  style="width: 60px; padding: 0.3rem; border: 1px solid #ccc; border-radius: 4px"
-                />
-              </td>
-              <td style="padding: 1rem; border-bottom: 1px solid #eee; font-weight: bold">
-                ${{ item.subtotal }}
-              </td>
-              <td style="padding: 1rem; border-bottom: 1px solid #eee; text-align: center">
-                <button
-                  (click)="removeItem(item.product.id)"
-                  style="
-                    background: #dc3545;
-                    color: white;
-                    border: none;
-                    padding: 0.3rem 0.6rem;
-                    border-radius: 4px;
-                    cursor: pointer;
-                  "
-                  title="Eliminar producto"
-                >
-                  X
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <h1 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem">Mi Pedido</h1>
 
-      @if (!isLoggedIn) {
-        <div style="padding: 1.5rem; background: #fff; border-top: 1px solid #ddd">
-          <h3 style="margin-top: 0; color: #333">Tus datos para el pedido</h3>
-          <div style="display: flex; gap: 1rem">
-            <input
-              type="text"
-              [(ngModel)]="guestName"
-              placeholder="Nombre y Apellido"
-              style="flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-            />
-            <input
-              type="text"
-              [(ngModel)]="guestDni"
-              placeholder="DNI"
-              style="flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-            />
-            <input
-              type="email"
-              [(ngModel)]="guestEmail"
-              placeholder="Tu correo electrónico (Para seguir el envío)"
-              style="flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-            />
-          </div>
-        </div>
-      }
-
-      <div
-        style="
-          padding: 1.5rem;
-          background: #f8f9fa;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-top: 1px solid #ddd;
-        "
-      >
-        <h2 style="margin: 0; color: #333">Total: ${{ cartTotal }}</h2>
-
-        <button
-          (click)="checkout()"
+    @if (cartItems.length === 0) {
+      <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 8px">
+        <h3 style="color: #666">Tu carrito está vacío 😔</h3>
+        <a
+          routerLink="/"
           style="
-            padding: 1rem 2rem;
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
             background: #0056b3;
             color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            text-decoration: none;
+            border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          "
+          >Volver al catálogo</a
+        >
+      </div>
+    } @else {
+      <div style="background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden">
+        <table style="width: 100%; border-collapse: collapse; text-align: left">
+          <thead style="background: #f4f4f4">
+            <tr>
+              <th style="padding: 1rem; border-bottom: 1px solid #ddd">Producto</th>
+              <th style="padding: 1rem; border-bottom: 1px solid #ddd">Precio U.</th>
+              <th style="padding: 1rem; border-bottom: 1px solid #ddd">Cant.</th>
+              <th style="padding: 1rem; border-bottom: 1px solid #ddd">Subtotal</th>
+              <th style="padding: 1rem; border-bottom: 1px solid #ddd"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of cartItems; track item.product.id) {
+              <tr>
+                <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                  <strong>{{ item.product.name }}</strong
+                  ><br />
+                  <small style="color: gray">SKU: {{ item.product.sku }}</small>
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                  ${{ item.product.finalPrice }}
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                  <input
+                    type="number"
+                    min="1"
+                    [value]="item.quantity"
+                    (change)="onQuantityChange(item.product.id, $event)"
+                    style="width: 60px; padding: 0.3rem; border: 1px solid #ccc; border-radius: 4px"
+                  />
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #eee; font-weight: bold">
+                  ${{ item.subtotal }}
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #eee; text-align: center">
+                  <button
+                    (click)="removeItem(item.product.id)"
+                    style="
+                      background: #dc3545;
+                      color: white;
+                      border: none;
+                      padding: 0.3rem 0.6rem;
+                      border-radius: 4px;
+                      cursor: pointer;
+                    "
+                    title="Eliminar producto"
+                  >
+                    X
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (!isLoggedIn) {
+          <div style="padding: 1.5rem; background: #fff; border-top: 1px solid #ddd">
+            <h3 style="margin-top: 0; color: #333">Tus datos para el pedido</h3>
+
+            <div style="display: flex; gap: 1rem; align-items: flex-start">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem">
+                <input
+                  type="text"
+                  name="guestName"
+                  [(ngModel)]="guestName"
+                  #nameCtrl="ngModel"
+                  required
+                  minlength="3"
+                  placeholder="Nombre y Apellido"
+                  [style.borderColor]="nameCtrl.invalid && nameCtrl.touched ? '#dc3545' : '#ccc'"
+                  style="padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; outline: none"
+                />
+                @if (nameCtrl.invalid && nameCtrl.touched) {
+                  <small style="color: #dc3545; font-size: 0.85rem"
+                    >Ingresá tu nombre completo.</small
+                  >
+                }
+              </div>
+
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem">
+                <input
+                  type="text"
+                  name="guestDni"
+                  [(ngModel)]="guestDni"
+                  #dniCtrl="ngModel"
+                  required
+                  pattern="^[0-9]{7,8}$"
+                  placeholder="DNI (Sin puntos)"
+                  [style.borderColor]="dniCtrl.invalid && dniCtrl.touched ? '#dc3545' : '#ccc'"
+                  style="padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; outline: none"
+                />
+                @if (dniCtrl.invalid && dniCtrl.touched) {
+                  <small style="color: #dc3545; font-size: 0.85rem"
+                    >DNI inválido (deben ser 7 u 8 números).</small
+                  >
+                }
+              </div>
+
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem">
+                <input
+                  type="email"
+                  name="guestEmail"
+                  [(ngModel)]="guestEmail"
+                  #emailCtrl="ngModel"
+                  required
+                  pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                  placeholder="Tu correo electrónico"
+                  [style.borderColor]="emailCtrl.invalid && emailCtrl.touched ? '#dc3545' : '#ccc'"
+                  style="padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; outline: none"
+                />
+                @if (emailCtrl.invalid && emailCtrl.touched) {
+                  <small style="color: #dc3545; font-size: 0.85rem"
+                    >Ingresá un formato de correo válido.</small
+                  >
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <div
+          style="
+            padding: 1.5rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #ddd;
           "
         >
-          💳 Confirmar y Pagar
-        </button>
+          <h2 style="margin: 0; color: #333">Total: ${{ cartTotal }}</h2>
+
+          <button
+            (click)="checkout()"
+            style="
+              padding: 1rem 2rem;
+              background: #0056b3;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-size: 1.2rem;
+              font-weight: bold;
+              cursor: pointer;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            💳 Confirmar y Pagar
+          </button>
+        </div>
       </div>
-    </div>
+    }
   }
 </main>

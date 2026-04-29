@@ -263,3 +263,33 @@ export const trackOrder = async (
     res.status(500).json({ message: "Error interno al consultar el pedido." });
   }
 };
+
+// --- CONFIRMACIÓN DE PAGO DESDE EL FRONTEND ---
+export const confirmPayment = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { external_reference, status } = req.body;
+
+  if (status === "approved" && external_reference) {
+    try {
+      const orderRepository = AppDataSource.getRepository(Order);
+      const orderId = parseInt(external_reference);
+
+      const order = await orderRepository.findOneBy({ id: orderId });
+
+      if (order && order.status === OrderStatus.PENDING) {
+        order.status = OrderStatus.CONFIRMED; // ¡Pago recibido!
+        await orderRepository.save(order);
+        console.log(`✅ Orden #${order.id} pagada y confirmada.`);
+      }
+
+      res.json({ message: "Estado de orden actualizado a confirmado" });
+    } catch (error) {
+      console.error("Error confirmando pago:", error);
+      res.status(500).json({ message: "Error interno al confirmar pago" });
+    }
+  } else {
+    res.status(400).json({ message: "Pago no aprobado o faltan datos" });
+  }
+};

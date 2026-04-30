@@ -4,6 +4,7 @@ import { Order, OrderStatus } from "../entity/Order";
 import { OrderItem } from "../entity/OrderItem";
 import { User } from "../entity/User"; // Importamos User por las dudas
 import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
+import { sendOrderConfirmationEmail } from "../services/emailService";
 
 const client = new MercadoPagoConfig({
   accessToken:
@@ -65,7 +66,6 @@ export const createOrder = async (
 
     // === NUEVA LÓGICA DE RUTEO B2B / B2C ===
     if (!userId) {
-      // --- FLUJO B2C: INVITADOS (MERCADO PAGO) ---
       // --- FLUJO B2C: INVITADOS ---
       // Creamos la preferencia de pago en Mercado Pago
       const preference = new Preference(client);
@@ -108,7 +108,9 @@ export const createOrder = async (
       });
     } else {
       // --- FLUJO B2B: MAYORISTAS ---
-      // Flujo tradicional, sin pasarela de pago
+      // DISPARAMOS EL CORREO AUTOMÁTICO ACÁ:
+      await sendOrderConfirmationEmail(savedOrder.id);
+
       res.status(201).json({
         message: "¡Pedido guardado con éxito!",
         orderId: savedOrder.id,
@@ -326,6 +328,8 @@ export const mpWebhook = async (req: Request, res: Response): Promise<void> => {
           console.log(
             `[WEBHOOK] ✅ ÉXITO: Orden #${order.id} pagada y confirmada en segundo plano.`,
           );
+          // DISPARAMOS EL CORREO AUTOMÁTICO ACÁ:
+          await sendOrderConfirmationEmail(order.id);
         } else {
           console.log(
             `[WEBHOOK] ℹ️ La orden #${orderId} ya estaba confirmada previamente o no existe.`,

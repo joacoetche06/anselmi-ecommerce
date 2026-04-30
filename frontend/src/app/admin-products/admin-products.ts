@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService, Product } from '../services/product.service';
+import { ModalService } from '../modal.service';
 
 @Component({
   selector: 'app-admin-products',
@@ -27,7 +28,10 @@ export class AdminProducts implements OnInit {
     imageUrl: '',
   };
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private modalService: ModalService,
+  ) {}
 
   ngOnInit() {
     this.loadProducts();
@@ -79,7 +83,7 @@ export class AdminProducts implements OnInit {
           this.loadProducts();
           this.closeModal();
         },
-        error: (err) => alert('Error al actualizar el producto.'),
+        error: (err) => this.modalService.show('Error al actualizar el producto.', true),
       });
     } else {
       this.productService.createProduct(this.currentProduct).subscribe({
@@ -87,7 +91,7 @@ export class AdminProducts implements OnInit {
           this.loadProducts();
           this.closeModal();
         },
-        error: (err) => alert('Error al crear el producto.'),
+        error: (err) => this.modalService.show('Error al crear el producto.', true),
       });
     }
   }
@@ -97,7 +101,10 @@ export class AdminProducts implements OnInit {
       this.productService.deleteProduct(id).subscribe({
         next: () => this.loadProducts(),
         error: (err) =>
-          alert('No se pudo borrar. Asegurate de que no esté incluido en ninguna orden previa.'),
+          this.modalService.show(
+            'No se pudo borrar. Asegurate de que no esté incluido en ninguna orden previa.',
+            true,
+          ),
       });
     }
   }

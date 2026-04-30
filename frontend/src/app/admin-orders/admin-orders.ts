@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../services/cart.service';
+import { ModalService } from '../modal.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -13,7 +14,10 @@ export class AdminOrders implements OnInit {
   orders: any[] = [];
   loading = true;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private modalService: ModalService,
+  ) {}
 
   ngOnInit() {
     this.loadOrders();
@@ -43,11 +47,16 @@ export class AdminOrders implements OnInit {
         }
 
         // Un pequeño feedback visual (opcional)
-        alert(`✅ ¡El pedido #${orderId} pasó a estado: ${newStatus.toUpperCase()}!`);
+        this.modalService.show(
+          `✅ ¡El pedido #${orderId} pasó a estado: ${newStatus.toUpperCase()}!`,
+        );
       },
       error: (err) => {
         console.error('Error al cambiar estado:', err);
-        alert('Hubo un problema al actualizar la orden. Revisá tu conexión.');
+        this.modalService.show(
+          'Hubo un problema al actualizar la orden. Revisá tu conexión.',
+          true,
+        );
         // Si falla, volvemos a cargar las órdenes para revertir el selector al estado real
         this.loadOrders();
       },

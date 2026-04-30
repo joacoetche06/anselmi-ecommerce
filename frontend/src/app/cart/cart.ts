@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router'; // <-- 1. Importamos esto
 import { CartService, CartItem } from '../services/cart.service';
 import { AuthService } from '../services/auth.service';
+import { ModalService } from '../modal.service';
 @Component({
   selector: 'app-cart',
   standalone: true,
@@ -19,8 +20,8 @@ export class Cart implements OnInit {
   guestDni: string = ''; // <-- Nueva variable
   guestEmail: string = ''; // <-- Nueva variable
 
-  isRedirecting: boolean = false;
-
+  isProcessing: boolean = false; // Controla la pantalla de carga general
+  isRedirecting: boolean = false; // Controla si el texto dice "Redirigiendo a MP"
   // Teléfono de prueba (después le ponemos el real de la empresa)
   // Formato internacional sin el "+" (Ej: 54 9 11 1234 5678)
   companyPhone: string = '5491112345678';
@@ -29,6 +30,7 @@ export class Cart implements OnInit {
     private cartService: CartService,
     private router: Router,
     private authService: AuthService,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit() {
@@ -55,21 +57,27 @@ export class Cart implements OnInit {
     if (!this.isLoggedIn) {
       // 1. Que no estén vacíos
       if (!this.guestName || !this.guestDni || !this.guestEmail) {
-        alert('Por favor, completá Nombre, DNI y Email para procesar el pedido.');
+        this.modalService.show(
+          'Por favor, completá Nombre, DNI y Email para procesar el pedido.',
+          true,
+        );
         return;
       }
 
       // 2. Que el email tenga un formato válido (ej: nombre@dominio.com)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(this.guestEmail)) {
-        alert('Por favor, ingresá un correo electrónico válido.');
+        this.modalService.show('Por favor, ingresá un correo electrónico válido.', true);
         return;
       }
 
       // 3. Que el DNI sean solo números (entre 7 y 8 dígitos)
       const dniRegex = /^\d{7,8}$/;
       if (!dniRegex.test(this.guestDni)) {
-        alert('Por favor, ingresá un DNI válido (solo números, sin puntos).');
+        this.modalService.show(
+          'Por favor, ingresá un DNI válido (solo números, sin puntos).',
+          true,
+        );
         return;
       }
     }
@@ -87,25 +95,38 @@ export class Cart implements OnInit {
       guestEmail: this.isLoggedIn ? null : this.guestEmail,
     };
 
+    // ... validaciones previas ...
+
     console.log('Enviando orden a la base de datos...', orderData);
+
+    // PRENDEMOS LA PANTALLA DE CARGA ACÁ:
+    this.isProcessing = true;
 
     this.cartService.submitOrder(orderData).subscribe({
       next: (response) => {
         if (response.init_point) {
-          // --- FLUJO INVITADO (MERCADO PAGO) ---
-          this.isRedirecting = true; // 1. Activamos la pantalla de carga
-          this.cartService.clearCart(); // 2. Vaciamos el carrito local (ahora no se va a ver)
-          window.location.href = response.init_point; // 3. Redirigimos
+          // Flujo MP
+          this.isRedirecting = true; // Cambia el texto a "Redirigiendo..."
+          this.cartService.clearCart();
+          window.location.href = response.init_point;
         } else {
           // --- FLUJO MAYORISTA (B2B) ---
-          this.cartService.clearCart();
-          alert('¡Pedido confirmado con éxito! Tu número de orden es: #' + response.orderId);
-          this.router.navigate(['/']);
+          this.isProcessing = false; // 1. Apagamos la carga
+          this.cartService.clearCart(); // 2. Vaciamos el carrito
+
+          this.modalService.show(
+            '¡Pedido confirmado con éxito! Tu número de orden es: #' + response.orderId,
+          );
+          this.router.navigate(['/my-orders']);
         }
       },
       error: (err) => {
+        this.isProcessing = false; // APAGAMOS LA CARGA SI HAY ERROR
         console.error('Error al confirmar la compra:', err);
-        alert('Hubo un problema al procesar tu pedido. Intentá de nuevo más tarde.');
+        this.modalService.show(
+          'Hubo un problema al procesar tu pedido. Intentá de nuevo más tarde.',
+          true,
+        );
       },
     });
   }

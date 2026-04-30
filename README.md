@@ -60,3 +60,9 @@ Vendedor:
     TESTUSER7007998307536401193
     PEseMGOwVn
     635716
+
+
+CUENTA CORREO PRUEBAS
+
+    cruz.watsica@ethereal.email
+    VSEBVeA5kYBrHTXGTN

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common'; // Necesario para los ngIf
 import { FormsModule } from '@angular/forms'; // Necesario para [(ngModel)]
 import { ProductService, Product } from '../services/product.service';
 import { CartService } from '../services/cart.service';
+import { ModalService } from '../modal.service';
 
 @Component({
   selector: 'app-catalog',
@@ -24,6 +25,7 @@ export class Catalog implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit(): void {
@@ -68,7 +70,7 @@ export class Catalog implements OnInit {
 
   addToCart(product: Product) {
     this.cartService.addToCart(product, 1);
-    alert(`¡${product.name} agregado al pedido!`);
+    this.modalService.show(`¡${product.name} agregado al pedido!`);
   }
 
   // Función que se dispara cada vez que el usuario tilda/destilda un checkbox

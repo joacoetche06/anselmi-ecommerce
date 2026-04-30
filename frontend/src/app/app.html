@@ -9,12 +9,14 @@
     font-family: sans-serif;
   "
 >
-  <img
-    src="logo.jpeg"
-    alt="Logo"
-    style="max-width: 200px; height: auto; border-radius: 8px; margin-bottom: 25px"
-  />
-
+  <!-- LOGO CLICKEABLE -->
+  <a routerLink="/" style="cursor: pointer; display: inline-block">
+    <img
+      src="logo.jpeg"
+      alt="Logo Anselmi"
+      style="max-width: 200px; height: auto; border-radius: 8px; margin-bottom: 25px"
+    />
+  </a>
   <div style="display: flex; gap: 1rem; align-items: center">
     @if (isAdmin) {
       <a routerLink="/admin-orders" style="color: #0056b3; font-weight: bold; text-decoration: none"
@@ -55,12 +57,16 @@
       >
         🛒 Mi Pedido ({{ cartItemCount }})
       </a>
-      <a
-        routerLink="/track-order"
-        style="color: #0056b3; font-weight: bold; text-decoration: none; margin-right: 1rem"
-      >
-        Seguí tu Pedido
-      </a>
+
+      <!-- ESTE ES EL CAMBIO: Solo lo ven los invitados -->
+      @if (!isLoggedIn) {
+        <a
+          routerLink="/track-order"
+          style="color: #0056b3; font-weight: bold; text-decoration: none; margin-right: 1rem"
+        >
+          Seguí tu Pedido
+        </a>
+      }
 
       @if (isLoggedIn) {
         <a routerLink="/my-orders" style="color: #0056b3; font-weight: bold; text-decoration: none"
@@ -160,3 +166,73 @@
     Escribinos
   </a>
 </div>
+
+<!-- MODAL GLOBAL -->
+@if (modalState.isOpen) {
+  <div
+    style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(2px);
+    "
+  >
+    <div
+      style="
+        background: white;
+        padding: 2.5rem 2rem;
+        border-radius: 8px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      "
+    >
+      <!-- Icono y Título Dinámico -->
+      <h2
+        [style.color]="modalState.isError ? '#dc3545' : '#28a745'"
+        style="
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        "
+      >
+        <span style="font-size: 3rem; line-height: 1">{{ modalState.isError ? '⚠️' : '✅' }}</span>
+        {{ modalState.isError ? 'Atención' : '¡Excelente!' }}
+      </h2>
+
+      <!-- Mensaje -->
+      <p style="margin: 1.5rem 0; color: #444; line-height: 1.5; font-size: 1.1rem">
+        {{ modalState.message }}
+      </p>
+
+      <!-- Botón Cerrar -->
+      <button
+        (click)="modalService.close()"
+        style="
+          padding: 0.8rem 2.5rem;
+          background: #0056b3;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 1rem;
+          width: 100%;
+        "
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
+}

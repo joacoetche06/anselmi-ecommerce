@@ -17,6 +17,8 @@ export interface Product {
   appliedDiscount?: number;
 
   imageUrl?: string;
+
+  requierePresupuesto?: boolean;
 }
 
 @Injectable({

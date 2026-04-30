@@ -60,4 +60,12 @@ export class AuthService {
   register(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userData);
   }
+
+  getUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/users`);
+  }
+
+  updateUser(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${id}`, data);
+  }
 }

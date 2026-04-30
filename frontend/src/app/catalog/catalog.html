@@ -156,23 +156,41 @@
               </span>
             }
 
-            <button
-              (click)="addToCart(product)"
-              style="
-                margin-top: 1rem;
-                padding: 0.6rem 1rem;
-                background: #28a745;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                display: block;
-                width: 100%;
-                font-weight: bold;
-              "
-            >
-              Agregar al carrito
-            </button>
+            <div style="margin-top: auto; padding-top: 1rem">
+              @if (product.requierePresupuesto) {
+                <button
+                  (click)="pedirPresupuesto(product)"
+                  style="
+                    width: 100%;
+                    padding: 0.8rem;
+                    background: #333;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    cursor: pointer;
+                  "
+                >
+                  📋 Solicitar Presupuesto
+                </button>
+              } @else {
+                <button
+                  (click)="addToCart(product)"
+                  style="
+                    width: 100%;
+                    padding: 0.8rem;
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    cursor: pointer;
+                  "
+                >
+                  🛒 Agregar al Pedido
+                </button>
+              }
+            </div>
           </div>
         } @empty {
           <div

@@ -1,121 +1,216 @@
-<main style="padding: 2rem; max-width: 600px; margin: 0 auto; font-family: sans-serif">
-  <h1 style="color: #333">Alta de Nuevo Cliente</h1>
-  <p style="color: #666; margin-bottom: 2rem">
-    Creá un usuario para que el cliente pueda acceder a sus descuentos mayoristas.
-  </p>
-
-  @if (successMessage) {
-    <div
-      style="
-        background: #d4edda;
-        color: #155724;
-        padding: 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-      "
-    >
-      {{ successMessage }}
-    </div>
-  }
-  @if (errorMessage) {
-    <div
-      style="
-        background: #f8d7da;
-        color: #721c24;
-        padding: 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-      "
-    >
-      {{ errorMessage }}
-    </div>
-  }
-
-  <form
-    (ngSubmit)="onSubmit()"
+<main style="padding: 2rem; max-width: 1000px; margin: 0 auto; font-family: sans-serif">
+  <div
     style="
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
     "
   >
-    <div style="margin-bottom: 1rem">
-      <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
-        >Nombre o Razón Social *</label
-      >
-      <input
-        type="text"
-        [(ngModel)]="client.fullName"
-        name="fullName"
-        style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-      />
-    </div>
-
-    <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
-      <div style="flex: 1">
-        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">Email *</label>
-        <input
-          type="email"
-          [(ngModel)]="client.email"
-          name="email"
-          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-        />
-      </div>
-      <div style="flex: 1">
-        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">CUIT</label>
-        <input
-          type="text"
-          [(ngModel)]="client.cuit"
-          name="cuit"
-          placeholder="Opcional"
-          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-        />
-      </div>
-    </div>
-
-    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem">
-      <div style="flex: 1">
-        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
-          >Contraseña Temporal *</label
-        >
-        <input
-          type="text"
-          [(ngModel)]="client.password"
-          name="password"
-          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-        />
-      </div>
-      <div style="flex: 1">
-        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
-          >Tipo de Cliente</label
-        >
-        <select
-          [(ngModel)]="client.role"
-          name="role"
-          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
-        >
-          <option value="b2b">Mayorista (B2B)</option>
-          <option value="b2c">Minorista VIP (B2C)</option>
-        </select>
-      </div>
-    </div>
-
+    <h1 style="color: #333; margin: 0">Gestión de Clientes</h1>
     <button
-      type="submit"
+      (click)="viewMode = viewMode === 'list' ? 'create' : 'list'"
       style="
-        width: 100%;
-        padding: 1rem;
-        background: #28a745;
+        padding: 0.8rem 1.5rem;
+        background: #0056b3;
         color: white;
         border: none;
         border-radius: 4px;
         font-weight: bold;
-        font-size: 1.1rem;
         cursor: pointer;
       "
     >
-      Registrar Cliente
+      {{ viewMode === 'list' ? '+ Nuevo Cliente' : 'Volver a la Lista' }}
     </button>
-  </form>
+  </div>
+
+  @if (viewMode === 'list') {
+    <!-- VISTA 1: TABLA DE USUARIOS -->
+    <div
+      style="
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      "
+    >
+      <table style="width: 100%; border-collapse: collapse; text-align: left">
+        <thead style="background: #f8f9fa">
+          <tr>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Nombre / Razón Social</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Email / CUIT</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Rol</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Descuento (%)</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <strong>{{ user.fullName }}</strong>
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                {{ user.email }}<br />
+                <small style="color: gray">{{ user.cuit || 'Sin CUIT' }}</small>
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <span
+                  style="
+                    background: #e9ecef;
+                    padding: 0.2rem 0.5rem;
+                    border-radius: 4px;
+                    font-size: 0.8rem;
+                    text-transform: uppercase;
+                  "
+                >
+                  {{ user.role }}
+                </span>
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <!-- Cambiar descuento rápido -->
+                <div style="display: flex; gap: 0.5rem; align-items: center">
+                  <input
+                    type="number"
+                    [(ngModel)]="user.discountPercentage"
+                    style="width: 60px; padding: 0.3rem; border: 1px solid #ccc; border-radius: 4px"
+                  />
+                  <button
+                    (click)="updateDiscount(user)"
+                    style="
+                      background: #28a745;
+                      color: white;
+                      border: none;
+                      padding: 0.4rem;
+                      border-radius: 4px;
+                      cursor: pointer;
+                      font-size: 0.8rem;
+                    "
+                  >
+                    💾
+                  </button>
+                </div>
+              </td>
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <!-- Botón para Aprobar o Suspender -->
+                <button
+                  (click)="toggleUserStatus(user)"
+                  [style.background]="user.isActive ? '#dc3545' : '#28a745'"
+                  style="
+                    color: white;
+                    border: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 0.8rem;
+                  "
+                >
+                  {{ user.isActive ? 'Suspender' : 'Aprobar' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <!-- VISTA 2: FORMULARIO DE ALTA (Tu código anterior adaptado) -->
+    <div style="max-width: 600px; margin: 0 auto">
+      <p style="color: #666; margin-bottom: 2rem">
+        Creá un usuario para que el cliente pueda acceder a sus descuentos mayoristas.
+      </p>
+
+      <form
+        (ngSubmit)="onSubmit()"
+        style="
+          background: white;
+          padding: 2rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        "
+      >
+        <!-- Mismo formulario tuyo... -->
+        <div style="margin-bottom: 1rem">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+            >Nombre o Razón Social *</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="client.fullName"
+            name="fullName"
+            style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+          />
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">Email *</label>
+            <input
+              type="email"
+              [(ngModel)]="client.email"
+              name="email"
+              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">CUIT</label>
+            <input
+              type="text"
+              [(ngModel)]="client.cuit"
+              name="cuit"
+              placeholder="Opcional"
+              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem">
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+              >Contraseña Temporal *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="client.password"
+              name="password"
+              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+              >Tipo de Cliente</label
+            >
+            <select
+              [(ngModel)]="client.role"
+              name="role"
+              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            >
+              <option value="b2b">Mayorista (B2B)</option>
+              <option value="b2c">Minorista VIP (B2C)</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          style="
+            width: 100%;
+            padding: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+          "
+        >
+          Registrar Cliente
+        </button>
+      </form>
+    </div>
+  }
 </main>

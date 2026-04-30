@@ -50,4 +50,7 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ default: false })
+  requierePresupuesto: boolean;
 }

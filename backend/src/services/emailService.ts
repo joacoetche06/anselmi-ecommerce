@@ -42,23 +42,54 @@ export const sendOrderConfirmationEmail = async (orderId: number) => {
       )
       .join("");
 
-    // Armamos el cuerpo del correo
     const mailOptions = {
-      from: '"Anselmi Sanitarios" <ventas@anselmi.com.ar>', // Remitente ficticio
+      from: '"Anselmi Sanitarios" <ventas@anselmi.com.ar>',
       to: recipientEmail,
       subject: `¡Confirmación de Pedido #${order.id}!`,
       html: `
-        <div style="font-family: sans-serif; padding: 20px; max-width: 600px; border: 1px solid #ddd; border-radius: 8px;">
-            <h2 style="color: #0056b3;">¡Gracias por tu compra en Anselmi!</h2>
-            <p>Hola, queríamos avisarte que tu pedido <strong>#${order.id}</strong> fue confirmado exitosamente y ya lo estamos preparando.</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            <h3>Resumen de tu compra:</h3>
-            <ul>${itemsHtml}</ul>
-            <h3 style="color: #333; background: #f4f4f4; padding: 10px; border-radius: 4px;">Total abonado: $${order.totalAmount}</h3>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="color: #666; font-size: 0.9rem;">Ante cualquier consulta, podés responder a este correo o contactarnos por WhatsApp.</p>
-        </div>
-      `,
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+          <!-- Cabecera Azul Anselmi -->
+          <div style="background-color: #0056b3; padding: 30px 20px; text-align: center;">
+              
+              <!-- ACÁ INSERTAMOS EL LOGO REFERENCIANDO EL CID -->
+              <img src="cid:logo_anselmi" alt="Anselmi Logo" style="max-width: 200px; height: auto; margin-bottom: 15px; border-radius: 4px;">
+              
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">ANSELMI</h1>
+              <p style="color: #e9ecef; margin: 5px 0 0 0; font-size: 14px;">Desarrollos Comerciales S.R.L.</p>
+          </div>
+          <!-- Cuerpo del mensaje -->
+          <div style="padding: 40px 30px;">
+              <h2 style="color: #333333; font-size: 20px; margin-top: 0;">¡Gracias por tu compra!</h2>
+              <p style="color: #666666; font-size: 16px; line-height: 1.5;">Hola, queríamos avisarte que tu pedido <strong>#${order.id}</strong> fue confirmado exitosamente y ya lo estamos procesando en nuestro sistema.</p>
+              
+              <div style="margin: 30px 0; border-top: 2px solid #f8f9fa; border-bottom: 2px solid #f8f9fa; padding: 20px 0;">
+                  <h3 style="color: #0056b3; font-size: 16px; margin-top: 0;">Resumen de tu pedido:</h3>
+                  <ul style="list-style-type: none; padding: 0; margin: 0; color: #555555;">
+                      ${itemsHtml}
+                  </ul>
+              </div>
+
+              <div style="background-color: #f8f9fa; padding: 15px 20px; border-radius: 6px; text-align: right;">
+                  <span style="color: #666666; font-size: 14px; text-transform: uppercase;">Total abonado</span>
+                  <br>
+                  <strong style="color: #0056b3; font-size: 24px;">$${order.totalAmount}</strong>
+              </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+              <p style="color: #999999; font-size: 12px; margin: 0;">Ante cualquier consulta, podés responder a este correo o contactarnos por nuestro WhatsApp oficial.</p>
+          </div>
+      </div>
+                `,
+      // ACÁ ADJUNTAMOS LA IMAGEN FÍSICA PARA QUE EL CORREO LA LEA, cuando esté publicado
+      attachments: [
+        {
+          filename: "logo.jpeg",
+          path: "../frontend/public/logo.jpeg", // Ruta exacta desde la carpeta backend hacia el frontend
+          cid: "logo_anselmi", // Este ID debe coincidir con el src="cid:..." del HTML
+        },
+      ],
     };
 
     // Enviamos el correo

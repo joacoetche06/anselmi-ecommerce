@@ -4,7 +4,12 @@ import express, { Request, Response } from "express"; // <-- Importación correg
 import cors from "cors"; // <-- Importación corregida
 import { AppDataSource } from "./data-source";
 import { Product } from "./entity/Product";
-import { register, login } from "./controllers/authController";
+import {
+  register,
+  login,
+  updateUser,
+  getAllUsers,
+} from "./controllers/authController";
 import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
 import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
 import productRoutes from "./routes/productRoutes";
@@ -40,8 +45,6 @@ AppDataSource.initialize()
           // Recorremos los productos y calculamos en tiempo real
           const productsWithDynamicPricing = products.map((p) => {
             const netoAleph = Number(p.listPrice);
-
-            // Aplicamos la fórmula: Neto - Descuento + 21% IVA
             const netoConDescuento =
               netoAleph - netoAleph * (userDiscount / 100);
             const precioFinalConIva = netoConDescuento * 1.21;
@@ -53,6 +56,7 @@ AppDataSource.initialize()
               stockQuantity: p.stockQuantity,
               finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
               appliedDiscount: userDiscount,
+              requierePresupuesto: p.requierePresupuesto, // <-- ¡AGREGAR ESTA LÍNEA!
             };
           });
 
@@ -67,6 +71,9 @@ AppDataSource.initialize()
     // 2. Rutas de Autenticación
     app.post("/api/auth/register", register);
     app.post("/api/auth/login", login);
+
+    app.get("/api/auth/users", getAllUsers);
+    app.put("/api/auth/users/:id", updateUser);
 
     // --- LEVANTAR EL SERVIDOR ---
     const PORT = 3001;

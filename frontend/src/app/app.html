@@ -10,7 +10,7 @@
   "
 >
   <!-- LOGO CLICKEABLE -->
-  <a routerLink="/" style="cursor: pointer; display: inline-block">
+  <a [routerLink]="isAdmin ? '/admin-orders' : '/'" style="cursor: pointer; display: inline-block">
     <img
       src="logo.jpeg"
       alt="Logo Anselmi"
@@ -19,87 +19,36 @@
   </a>
   <div style="display: flex; gap: 1rem; align-items: center">
     @if (isAdmin) {
-      <a routerLink="/admin-orders" style="color: #0056b3; font-weight: bold; text-decoration: none"
-        >Gestión de Pedidos</a
-      >
-      <a
-        routerLink="/admin-clients"
-        style="color: #0056b3; font-weight: bold; text-decoration: none"
-        >Alta de Clientes</a
-      >
-
-      <button
-        (click)="logout()"
-        style="
-          padding: 0.5rem 1rem;
-          background: #dc3545;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          font-weight: bold;
-          cursor: pointer;
-        "
-      >
-        Cerrar Sesión
-      </button>
+      <a routerLink="/admin-orders" class="nav-link">Gestión de Pedidos</a>
+      <a routerLink="/admin-clients" class="nav-link">Gestión de Clientes</a>
+      <a routerLink="/admin-products" class="nav-link">Gestión de Productos</a>
+      <button (click)="logout()" class="btn-outline-danger">Cerrar Sesión</button>
     } @else {
       <a
-        routerLink="/cart"
-        style="
-          padding: 0.5rem 1rem;
-          background: #ffc107;
-          color: #333;
-          text-decoration: none;
-          border-radius: 4px;
-          font-weight: bold;
-          cursor: pointer;
-        "
+        routerLink="/catalogo"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
       >
-        🛒 Mi Pedido ({{ cartItemCount }})
+        Catálogo
       </a>
 
-      <!-- ESTE ES EL CAMBIO: Solo lo ven los invitados -->
       @if (!isLoggedIn) {
-        <a
-          routerLink="/track-order"
-          style="color: #0056b3; font-weight: bold; text-decoration: none; margin-right: 1rem"
-        >
+        <a routerLink="/track-order" routerLinkActive="active-link" class="nav-link">
           Seguí tu Pedido
         </a>
       }
 
       @if (isLoggedIn) {
-        <a routerLink="/my-orders" style="color: #0056b3; font-weight: bold; text-decoration: none"
-          >Mis Pedidos</a
-        >
-        <button
-          (click)="logout()"
-          style="
-            padding: 0.5rem 1rem;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-          "
-        >
-          Cerrar Sesión
-        </button>
+        <a routerLink="/my-orders" routerLinkActive="active-link" class="nav-link"> Mis Pedidos </a>
+      }
+
+      <a routerLink="/cart" class="btn-outline-primary"> 🛒 Carrito ({{ cartItemCount }}) </a>
+
+      @if (isLoggedIn) {
+        <button (click)="logout()" class="btn-outline-danger">Cerrar Sesión</button>
       } @else {
-        <a
-          routerLink="/login"
-          style="
-            padding: 0.5rem 1rem;
-            background: #333;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-          "
-        >
-          Iniciar Sesión
-        </a>
+        <a routerLink="/login" class="btn-primary"> Iniciar Sesión </a>
       }
     }
   </div>

@@ -10,9 +10,12 @@ import { authGuard } from './guards/auth-guard';
 import { OrderTracking } from './order-tracking/order-tracking';
 // Importamos el nuevo componente que vamos a crear en un segundo:
 import { AdminProducts } from './admin-products/admin-products';
+import { Home } from './home/home';
 
 export const routes: Routes = [
-  { path: '', component: Catalog },
+  { path: '', component: Home },
+
+  { path: 'catalogo', component: Catalog },
   { path: 'cart', component: Cart },
   { path: 'login', component: Login },
   { path: 'track-order', component: OrderTracking },

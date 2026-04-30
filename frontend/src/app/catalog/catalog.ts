@@ -83,4 +83,8 @@ export class Catalog implements OnInit {
     }
     this.loadProducts(); // Recargamos el catálogo con los nuevos filtros
   }
+
+  pedirPresupuesto(product: Product) {
+    this.modalService.show('Producto agregado a tu lista de cotización (Próximamente)');
+  }
 }

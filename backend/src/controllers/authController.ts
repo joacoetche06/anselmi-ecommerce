@@ -106,3 +106,61 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
+
+// Traer todos los usuarios (para el panel de Admin)
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    // Traemos todos menos las contraseñas por seguridad
+    const users = await userRepository.find({
+      select: [
+        "id",
+        "fullName",
+        "email",
+        "cuit",
+        "role",
+        "isActive",
+        "discountPercentage",
+        "createdAt",
+      ],
+      order: { createdAt: "DESC" }, // Los más nuevos arriba
+    });
+    res.json(users);
+  } catch (error) {
+    console.error("Error obteniendo usuarios:", error);
+    res.status(500).json({ message: "Error al obtener usuarios" });
+  }
+};
+
+// Actualizar un usuario (Aprobar/Suspender o cambiar descuento)
+export const updateUser = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { isActive, discountPercentage } = req.body;
+    const userRepository = AppDataSource.getRepository(User);
+
+    const user = await userRepository.findOneBy({
+      id: parseInt(id as string, 10),
+    });
+    if (!user) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+      return;
+    }
+
+    if (isActive !== undefined) user.isActive = isActive;
+    if (discountPercentage !== undefined)
+      user.discountPercentage = discountPercentage;
+
+    await userRepository.save(user);
+    res.json({ message: "Usuario actualizado correctamente", user });
+  } catch (error) {
+    console.error("Error actualizando usuario:", error);
+    res.status(500).json({ message: "Error al actualizar usuario" });
+  }
+};

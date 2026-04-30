@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { ModalService } from '../modal.service';
 
 @Component({
   selector: 'app-admin-clients',
@@ -10,34 +11,64 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './admin-clients.html',
   styleUrl: './admin-clients.scss',
 })
-export class AdminClients {
+export class AdminClients implements OnInit {
+  viewMode: 'list' | 'create' = 'list'; // Controla qué pantalla vemos
+  users: any[] = [];
+
   client = {
     fullName: '',
     email: '',
     password: '',
     cuit: '',
-    role: 'b2b', // Por defecto lo creamos como mayorista
-    isActive: true, // <-- AGREGAMOS ESTO
+    role: 'b2b',
+    isActive: true,
   };
 
-  successMessage = '';
-  errorMessage = '';
+  constructor(
+    private authService: AuthService,
+    private modalService: ModalService,
+  ) {}
 
-  constructor(private authService: AuthService) {}
+  ngOnInit() {
+    this.loadUsers();
+  }
+
+  loadUsers() {
+    this.authService.getUsers().subscribe({
+      next: (data) => (this.users = data),
+      error: (err) => this.modalService.show('Error al cargar la lista de clientes.', true),
+    });
+  }
+
+  toggleUserStatus(user: any) {
+    const newStatus = !user.isActive;
+    this.authService.updateUser(user.id, { isActive: newStatus }).subscribe({
+      next: () => {
+        user.isActive = newStatus;
+        this.modalService.show(`Cliente ${newStatus ? 'Aprobado/Activado' : 'Suspendido'}.`);
+      },
+      error: () => this.modalService.show('Error al actualizar el estado.', true),
+    });
+  }
+
+  updateDiscount(user: any) {
+    this.authService
+      .updateUser(user.id, { discountPercentage: user.discountPercentage })
+      .subscribe({
+        next: () => this.modalService.show('Descuento actualizado correctamente.'),
+        error: () => this.modalService.show('Error al actualizar el descuento.', true),
+      });
+  }
 
   onSubmit() {
-    this.successMessage = '';
-    this.errorMessage = '';
-
     if (!this.client.fullName || !this.client.email || !this.client.password) {
-      this.errorMessage = 'Nombre, Email y Contraseña son obligatorios.';
+      this.modalService.show('Nombre, Email y Contraseña son obligatorios.', true);
       return;
     }
 
     this.authService.register(this.client).subscribe({
       next: (res) => {
-        this.successMessage = `¡Cliente ${this.client.fullName} registrado con éxito! Ya puede iniciar sesión.`;
-        // Limpiamos el formulario y mantenemos el isActive en true
+        this.modalService.show(`¡Cliente ${this.client.fullName} registrado con éxito!`);
         this.client = {
           fullName: '',
           email: '',
@@ -46,9 +77,11 @@ export class AdminClients {
           role: 'b2b',
           isActive: true,
         };
+        this.loadUsers(); // Recargamos la lista
+        this.viewMode = 'list'; // Volvemos a la tabla
       },
       error: (err) => {
-        this.errorMessage = err.error.message || 'Error al crear el cliente.';
+        this.modalService.show(err.error.message || 'Error al crear el cliente.', true);
       },
     });
   }

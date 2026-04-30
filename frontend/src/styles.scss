@@ -1,1 +1,70 @@
-/* You can add global styles to this file, and also import other style files */
+/* BARRA DE NAVEGACIÓN */
+.nav-link {
+  color: #333; /* Color unificado para todos los textos */
+  font-weight: bold;
+  text-decoration: none;
+  margin-right: 1.5rem;
+  padding-bottom: 0.2rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #0056b3; /* Se pone azul al pasar el mouse */
+  }
+
+  &.active-link {
+    color: #0056b3 !important;
+    border-bottom: 2px solid #0056b3;
+  }
+}
+
+/* BOTONES GLOBALES */
+.btn-outline-primary {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #0056b3;
+  border: 2px solid #0056b3;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 1rem;
+  transition: all 0.2s;
+  text-decoration: none;
+
+  &:hover {
+    background: #0056b3;
+    color: white;
+  }
+}
+
+.btn-primary {
+  padding: 0.5rem 1.2rem;
+  background: #0056b3;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #004494;
+  }
+}
+
+.btn-outline-danger {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #dc3545;
+    color: white;
+  }
+}

@@ -26,6 +26,7 @@ export class AdminProducts implements OnInit {
     stockQuantity: 0,
     discountPercentage: 0,
     imageUrl: '',
+    requierePresupuesto: false, // <-- Agregamos esto
   };
 
   constructor(

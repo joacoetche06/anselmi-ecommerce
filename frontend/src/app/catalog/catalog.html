@@ -134,26 +134,97 @@
               border-radius: 8px;
               background: white;
               box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+              display: flex;
+              flex-direction: column;
             "
           >
+            <!-- IMAGEN DEL PRODUCTO -->
+            <div
+              style="
+                height: 180px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid #f8f9fa;
+                padding-bottom: 1rem;
+              "
+            >
+              <img
+                [src]="product.imageUrl || 'placeholder.png'"
+                alt="Imagen de producto"
+                style="max-width: 100%; max-height: 100%; object-fit: contain"
+              />
+            </div>
+
             <p style="color: gray; font-size: 0.8rem; margin: 0">SKU: {{ product.sku }}</p>
             <h3 style="margin: 0.5rem 0; font-size: 1.1rem; color: #333">{{ product.name }}</h3>
+
+            <!-- SEMÁFORO DE STOCK -->
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0">
+              <span style="font-size: 0.8rem; color: #666; font-weight: bold">Disponibilidad:</span>
+              <div style="display: flex; gap: 3px">
+                <!-- Bloques Rojos (Nivel 1+) -->
+                <div
+                  [style.background]="
+                    getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'
+                  "
+                  style="width: 14px; height: 14px; border-radius: 2px"
+                ></div>
+                <div
+                  [style.background]="
+                    getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'
+                  "
+                  style="width: 14px; height: 14px; border-radius: 2px"
+                ></div>
+
+                <!-- Bloques Amarillos (Nivel 2+) -->
+                <div
+                  [style.background]="
+                    getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'
+                  "
+                  style="width: 14px; height: 14px; border-radius: 2px"
+                ></div>
+                <div
+                  [style.background]="
+                    getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'
+                  "
+                  style="width: 14px; height: 14px; border-radius: 2px"
+                ></div>
+
+                <!-- Bloques Verdes (Nivel 3) -->
+                <div
+                  [style.background]="
+                    getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'
+                  "
+                  style="width: 14px; height: 14px; border-radius: 2px"
+                ></div>
+                <div
+                  [style.background]="
+                    getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'
+                  "
+                  style="width: 14px; height: 14px; border-radius: 2px"
+                ></div>
+              </div>
+            </div>
 
             <h2 style="color: #0056b3; margin: 0.5rem 0">${{ product.finalPrice }}</h2>
 
             @if ((product?.appliedDiscount ?? 0) > 0) {
-              <span
-                style="
-                  background: #28a745;
-                  color: white;
-                  padding: 0.2rem 0.5rem;
-                  border-radius: 4px;
-                  font-size: 0.8rem;
-                  font-weight: bold;
-                "
-              >
-                {{ product?.appliedDiscount }}% OFF
-              </span>
+              <div style="margin-bottom: 0.5rem">
+                <span
+                  style="
+                    background: #28a745;
+                    color: white;
+                    padding: 0.2rem 0.5rem;
+                    border-radius: 4px;
+                    font-size: 0.8rem;
+                    font-weight: bold;
+                  "
+                >
+                  {{ product?.appliedDiscount }}% OFF
+                </span>
+              </div>
             }
 
             <div style="margin-top: auto; padding-top: 1rem">

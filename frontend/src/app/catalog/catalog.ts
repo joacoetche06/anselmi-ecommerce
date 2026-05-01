@@ -32,6 +32,13 @@ export class Catalog implements OnInit {
     this.loadProducts(); // Llamamos a la función de carga
   }
 
+  // Función para el Semáforo de Stock
+  getStockLevel(stock: number): number {
+    if (stock < 10) return 1; // Nivel Bajo (Rojo)
+    if (stock >= 10 && stock <= 50) return 2; // Nivel Medio (Amarillo)
+    return 3; // Nivel Alto (Verde)
+  }
+
   // Carga los productos, opcionalmente enviando los filtros a la URL
   loadProducts() {
     // 1. Armamos la cadena de consulta (query params)

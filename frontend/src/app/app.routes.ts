@@ -11,6 +11,7 @@ import { OrderTracking } from './order-tracking/order-tracking';
 // Importamos el nuevo componente que vamos a crear en un segundo:
 import { AdminProducts } from './admin-products/admin-products';
 import { Home } from './home/home';
+import { AdminConfigComponent } from './admin-config/admin-config';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -27,4 +28,5 @@ export const routes: Routes = [
   { path: 'admin-orders', component: AdminOrders, canActivate: [AdminGuard] },
   { path: 'admin-clients', component: AdminClients, canActivate: [AdminGuard] },
   { path: 'admin-products', component: AdminProducts, canActivate: [AdminGuard] }, // <-- Nueva ruta
+  { path: 'admin/config', component: AdminConfigComponent }, // Acordate de protegerla con tu AdminGuard si lo tenés
 ];

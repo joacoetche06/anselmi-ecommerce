@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms'; // Necesario para [(ngModel)]
 import { ProductService, Product } from '../services/product.service';
 import { CartService } from '../services/cart.service';
 import { ModalService } from '../modal.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-catalog',
@@ -26,6 +27,7 @@ export class Catalog implements OnInit {
     private productService: ProductService,
     private cartService: CartService,
     private modalService: ModalService,
+    public authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -93,5 +95,25 @@ export class Catalog implements OnInit {
 
   pedirPresupuesto(product: Product) {
     this.modalService.show('Producto agregado a tu lista de cotización (Próximamente)');
+  }
+
+  descargarCotizador() {
+    this.modalService.show('Generando tu lista de precios personalizada...');
+
+    this.productService.downloadCotizador().subscribe({
+      next: (blob) => {
+        // Magia de Javascript para forzar la descarga de un archivo en memoria
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Cotizador_Anselmi.xlsx'; // El nombre que verá el cliente
+        a.click();
+        window.URL.revokeObjectURL(url); // Limpiamos la memoria
+      },
+      error: (err) => {
+        console.error('Error al descargar el cotizador', err);
+        this.modalService.show('Error al generar el cotizador.', true);
+      },
+    });
   }
 }

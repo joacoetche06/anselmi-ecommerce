@@ -1,0 +1,162 @@
+<main style="padding: 2rem; font-family: sans-serif; max-width: 1200px; margin: 0 auto">
+  <div style="border-bottom: 2px solid #ccc; padding-bottom: 1rem; margin-bottom: 2rem">
+    <h1 style="color: #333; margin: 0">Configuración Global B2B</h1>
+    <p style="color: #666; margin-top: 0.5rem">
+      Ajustá las variables globales que afectarán el cotizador que descargan los clientes
+      mayoristas.
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 3rem">
+    <!-- LADO IZQUIERDO: EL FORMULARIO -->
+    <div
+      style="
+        flex: 1;
+        background: #f9f9f9;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      "
+    >
+      <h3 style="margin-top: 0; color: #0056b3">Parámetros del Cotizador</h3>
+
+      <div style="margin-bottom: 1.5rem">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333">
+          Descuento Pago Contado (%)
+        </label>
+        <input
+          type="number"
+          [(ngModel)]="config.cashDiscount"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        />
+        <small style="color: #666">Descuento extra en cascada (ej. 10 para 10%).</small>
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333">
+          Margen de Venta Sugerido
+        </label>
+        <input
+          type="number"
+          step="0.1"
+          [(ngModel)]="config.defaultMargin"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        />
+        <small style="color: #666"
+          >Multiplicador por defecto para el remarque (ej. 1.50 para 50%).</small
+        >
+      </div>
+
+      <div style="margin-bottom: 2rem">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333">
+          Porcentaje de IVA (%)
+        </label>
+        <input
+          type="number"
+          [(ngModel)]="config.taxRate"
+          style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+        />
+        <small style="color: #666">Impuesto al Valor Agregado (ej. 21 para 21%).</small>
+      </div>
+
+      <button
+        (click)="guardarConfiguracion()"
+        style="
+          width: 100%;
+          padding: 1rem;
+          background: #0056b3;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+          font-size: 1rem;
+        "
+      >
+        Guardar Configuración
+      </button>
+    </div>
+
+    <!-- LADO DERECHO: LA VISTA PREVIA (SIMULADOR) -->
+    <div style="flex: 1">
+      <h3 style="margin-top: 0; color: #333">Vista Previa (Simulación Excel)</h3>
+      <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem">
+        Así es como vería el cálculo un cliente con un
+        <strong style="color: #dc3545">{{ previewClientDiscount }}% de descuento base</strong>
+        (Ferretería Juan, por ejemplo).
+      </p>
+
+      <div
+        style="
+          border: 1px solid #0056b3;
+          border-radius: 8px;
+          overflow: hidden;
+          font-family: monospace;
+        "
+      >
+        <!-- Cabecera estilo Excel -->
+        <div
+          style="
+            background: #e9ecef;
+            display: flex;
+            padding: 0.5rem;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+          "
+        >
+          <div style="flex: 2">Descripción</div>
+          <div style="flex: 1; text-align: right">Precio Base</div>
+          <div style="flex: 1; text-align: right; color: #dc3545">Costo Neto</div>
+          <div style="flex: 1; text-align: right; color: #28a745">Precio Público</div>
+        </div>
+
+        <!-- Fila de datos estilo Excel -->
+        <div
+          style="
+            background: white;
+            display: flex;
+            padding: 1rem 0.5rem;
+            border-bottom: 1px solid #eee;
+          "
+        >
+          <div style="flex: 2">Caño PVC 110x4M</div>
+          <div style="flex: 1; text-align: right">${{ previewBasePrice | number: '1.2-2' }}</div>
+          <div style="flex: 1; text-align: right; font-weight: bold">
+            ${{ costoNetoPrevio | number: '1.2-2' }}
+          </div>
+          <div style="flex: 1; text-align: right; font-weight: bold; color: #0056b3">
+            ${{ precioVentaPrevio | number: '1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Explicación de las fórmulas abajo -->
+      <div
+        style="
+          margin-top: 1.5rem;
+          background: #e8f4f8;
+          padding: 1rem;
+          border-radius: 8px;
+          border-left: 4px solid #0056b3;
+        "
+      >
+        <h4 style="margin: 0 0 0.5rem 0; color: #0056b3">¿Cómo se calculan estos números?</h4>
+        <ul
+          style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem; color: #333; line-height: 1.6"
+        >
+          <li>
+            <strong>Costo Neto:</strong> ${{ previewBasePrice }} * (1 - 0.{{
+              previewClientDiscount
+            }}) * (1 - {{ config.cashDiscount / 100 }}) =
+            <strong>${{ costoNetoPrevio | number: '1.2-2' }}</strong>
+          </li>
+          <li>
+            <strong>Precio Público:</strong> ${{ costoNetoPrevio | number: '1.2-2' }} *
+            {{ config.defaultMargin }} * (1 + {{ config.taxRate / 100 }}) =
+            <strong>${{ precioVentaPrevio | number: '1.2-2' }}</strong>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>

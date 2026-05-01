@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { ModalService } from '../modal.service';
+import { ProductService } from '../services/product.service';
 
 @Component({
   selector: 'app-admin-clients',
@@ -27,6 +28,7 @@ export class AdminClients implements OnInit {
   constructor(
     private authService: AuthService,
     private modalService: ModalService,
+    private productService: ProductService,
   ) {}
 
   ngOnInit() {
@@ -82,6 +84,27 @@ export class AdminClients implements OnInit {
       },
       error: (err) => {
         this.modalService.show(err.error.message || 'Error al crear el cliente.', true);
+      },
+    });
+  }
+
+  descargarCotizadorCliente(clienteId: number, nombreCliente: string) {
+    this.modalService.show(`Generando cotizador B2B para ${nombreCliente}...`);
+
+    // Le pasamos el ID al servicio
+    this.productService.downloadCotizador(clienteId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Personalizamos el nombre del archivo para que el Admin no se confunda
+        a.download = `Cotizador_Anselmi_${nombreCliente.replace(/\s+/g, '_')}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al descargar el cotizador', err);
+        this.modalService.show(`Error al generar el cotizador para ${nombreCliente}.`, true);
       },
     });
   }

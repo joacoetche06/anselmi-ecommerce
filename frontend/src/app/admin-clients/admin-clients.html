@@ -44,6 +44,7 @@
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Rol</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Descuento (%)</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Estado</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -109,6 +110,24 @@
                   "
                 >
                   {{ user.isActive ? 'Suspender' : 'Aprobar' }}
+                </button>
+              </td>
+
+              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+                <button
+                  (click)="descargarCotizadorCliente(user.id, user.fullName)"
+                  title="Descargar Cotizador B2B"
+                  style="
+                    padding: 0.4rem 0.8rem;
+                    background: #17a2b8; /* Un color cyan/info distinto al de editar */
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin-left: 0.5rem;
+                  "
+                >
+                  📥 Excel
                 </button>
               </td>
             </tr>

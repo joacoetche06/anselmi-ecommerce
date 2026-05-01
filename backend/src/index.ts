@@ -14,6 +14,7 @@ import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
 import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
 import productRoutes from "./routes/productRoutes";
 import { getPublicProducts } from "./controllers/productController";
+import { generateCotizador } from "./controllers/reportController";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -75,6 +76,8 @@ AppDataSource.initialize()
 
     app.get("/api/auth/users", getAllUsers);
     app.put("/api/auth/users/:id", updateUser);
+
+    app.get("/api/products/cotizador", optionalAuth, generateCotizador);
 
     // --- LEVANTAR EL SERVIDOR ---
     const PORT = 3001;

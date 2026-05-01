@@ -50,4 +50,14 @@ export class ProductService {
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  // Descargar el Excel dinámico (opcionalmente para un cliente específico)
+  downloadCotizador(clientId?: number) {
+    let url = `${this.apiUrl}/cotizador`;
+    // Si viene un ID, lo agregamos como parámetro de búsqueda
+    if (clientId) {
+      url += `?clientId=${clientId}`;
+    }
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }

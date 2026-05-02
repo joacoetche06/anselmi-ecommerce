@@ -62,4 +62,27 @@ export class AdminOrders implements OnInit {
       },
     });
   }
+
+  // --- HELPERS PARA COLORES DE ESTADO ---
+  getStatusBgColor(status: string): string {
+    const bgColors: { [key: string]: string } = {
+      pending: '#fff3cd', // Amarillo suave
+      confirmed: '#d4edda', // Verde agua
+      processing: '#cce5ff', // Celeste/Azul suave
+      completed: '#28a745', // Verde fuerte (Éxito total)
+      cancelled: '#f8d7da', // Rojo suave
+    };
+    return bgColors[status] || '#e2e3e5'; // Gris por defecto
+  }
+
+  getStatusTextColor(status: string): string {
+    const textColors: { [key: string]: string } = {
+      pending: '#856404', // Texto amarillo oscuro
+      confirmed: '#155724', // Texto verde oscuro
+      processing: '#004085', // Texto azul oscuro
+      completed: '#ffffff', // Texto blanco (contrasta con el verde fuerte)
+      cancelled: '#721c24', // Texto rojo oscuro
+    };
+    return textColors[status] || '#383d41'; // Texto gris oscuro por defecto
+  }
 }

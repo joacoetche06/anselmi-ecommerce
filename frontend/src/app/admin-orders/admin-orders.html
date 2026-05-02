@@ -55,20 +55,8 @@
             <td style="padding: 1rem; font-weight: bold">${{ order.totalAmount }}</td>
             <td style="padding: 1rem">
               <span
-                [style.background]="
-                  order.status === 'confirmed'
-                    ? '#d4edda'
-                    : order.status === 'pending'
-                      ? '#fff3cd'
-                      : '#e2e3e5'
-                "
-                [style.color]="
-                  order.status === 'confirmed'
-                    ? '#155724'
-                    : order.status === 'pending'
-                      ? '#856404'
-                      : '#383d41'
-                "
+                [style.background]="getStatusBgColor(order.status)"
+                [style.color]="getStatusTextColor(order.status)"
                 style="
                   padding: 0.3rem 0.6rem;
                   border-radius: 4px;

@@ -54,8 +54,6 @@ export const sendOrderConfirmationEmail = async (orderId: number) => {
               <!-- ACÁ INSERTAMOS EL LOGO REFERENCIANDO EL CID -->
               <img src="cid:logo_anselmi" alt="Anselmi Logo" style="max-width: 200px; height: auto; margin-bottom: 15px; border-radius: 4px;">
               
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">ANSELMI</h1>
-              <p style="color: #e9ecef; margin: 5px 0 0 0; font-size: 14px;">Desarrollos Comerciales S.R.L.</p>
           </div>
           <!-- Cuerpo del mensaje -->
           <div style="padding: 40px 30px;">

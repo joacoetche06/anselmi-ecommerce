@@ -53,4 +53,7 @@ export class Product {
 
   @Column({ default: false })
   requierePresupuesto: boolean;
+
+  @Column({ type: "boolean", default: false })
+  hidden: boolean;
 }

@@ -196,7 +196,16 @@
             <h3 style="margin: 0.5rem 0; font-size: 1.1rem; color: #333">{{ product.name }}</h3>
 
             <!-- SEMÁFORO DE STOCK -->
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0">
+            <div
+              [title]="getStockLabel(product.stockQuantity)"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin: 0.5rem 0;
+                cursor: help;
+              "
+            >
               <span style="font-size: 0.8rem; color: #666; font-weight: bold">Disponibilidad:</span>
               <div style="display: flex; gap: 3px">
                 <!-- Bloques Rojos (Nivel 1+) -->

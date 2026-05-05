@@ -40,14 +40,116 @@
         </a>
       }
 
-      @if (isLoggedIn) {
-        <a routerLink="/my-orders" routerLinkActive="active-link" class="nav-link"> Mis Pedidos </a>
-      }
-
       <a routerLink="/cart" class="btn-outline-primary"> 🛒 Carrito ({{ cartItemCount }}) </a>
 
       @if (isLoggedIn) {
-        <button (click)="logout()" class="btn-outline-danger">Cerrar Sesión</button>
+        <!-- CONTENEDOR DEL MENÚ DESPLEGABLE -->
+        <div class="menu-container" style="position: relative">
+          <!-- Botón Principal "Mi Cuenta" -->
+          <button
+            (click)="toggleMenu($event)"
+            style="
+              background: none;
+              border: 1px solid #ccc;
+              padding: 0.5rem 1rem;
+              border-radius: 4px;
+              font-weight: bold;
+              color: #333;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            👤 Mi Cuenta
+            <span style="font-size: 0.8rem">▼</span>
+          </button>
+
+          <!-- El globito desplegable -->
+          @if (isMenuOpen) {
+            <div
+              style="
+                position: absolute;
+                top: 110%;
+                right: 0;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                min-width: 200px;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                z-index: 1000;
+              "
+            >
+              <!-- Info del Usuario (Placeholder) -->
+              <div style="padding: 1rem; border-bottom: 1px solid #eee; background: #f8f9fa">
+                <p style="margin: 0; font-size: 0.85rem; color: #666">Sesión iniciada</p>
+              </div>
+
+              <!-- Links Internos -->
+              <a
+                routerLink="/my-orders"
+                (click)="closeMenu()"
+                style="
+                  padding: 1rem;
+                  color: #333;
+                  text-decoration: none;
+                  border-bottom: 1px solid #eee;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  cursor: pointer;
+                "
+                onmouseover="this.style.background = '#f0f8ff'"
+                onmouseout="this.style.background = 'white'"
+              >
+                📦 Mis Pedidos
+              </a>
+
+              <a
+                routerLink="/my-data"
+                (click)="closeMenu()"
+                style="
+                  padding: 1rem;
+                  color: #333;
+                  text-decoration: none;
+                  border-bottom: 1px solid #eee;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  cursor: pointer;
+                "
+                onmouseover="this.style.background = '#f0f8ff'"
+                onmouseout="this.style.background = 'white'"
+              >
+                ⚙️ Mis Datos
+              </a>
+
+              <!-- Botón Cerrar Sesión -->
+              <button
+                (click)="logout()"
+                style="
+                  padding: 1rem;
+                  background: none;
+                  border: none;
+                  color: #dc3545;
+                  font-weight: bold;
+                  text-align: left;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                "
+                onmouseover="this.style.background = '#ffebee'"
+                onmouseout="this.style.background = 'white'"
+              >
+                🚪 Cerrar Sesión
+              </button>
+            </div>
+          }
+        </div>
       } @else {
         <a routerLink="/login" class="btn-primary"> Iniciar Sesión </a>
       }

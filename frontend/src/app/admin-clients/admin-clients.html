@@ -1,4 +1,4 @@
-<main style="padding: 2rem; max-width: 1000px; margin: 0 auto; font-family: sans-serif">
+<main style="padding: 1rem; max-width: 1000px; margin: 0 auto; font-family: sans-serif">
   <div
     style="
       display: flex;
@@ -41,6 +41,7 @@
           <tr>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Nombre / Razón Social</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Email / CUIT</th>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd">Datos Logísticos</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Rol</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Descuento (%)</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Estado</th>
@@ -57,6 +58,26 @@
                 {{ user.email }}<br />
                 <small style="color: gray">{{ user.cuit || 'Sin CUIT' }}</small>
               </td>
+              <td
+                style="
+                  padding: 1rem;
+                  border-bottom: 1px solid #eee;
+                  font-size: 0.85rem;
+                  color: #555;
+                "
+              >
+                @if (user.phone || user.address) {
+                  <div>📞 {{ user.phone || 'N/A' }}</div>
+                  <div style="margin-top: 4px">📍 {{ user.address || 'Sin dirección' }}</div>
+                  @if (user.city) {
+                    <div style="color: #888; font-size: 0.8rem">
+                      {{ user.city }} (CP: {{ user.zipCode }})
+                    </div>
+                  }
+                } @else {
+                  <span style="color: #999; font-style: italic">Sin datos de envío</span>
+                }
+              </td>
               <td style="padding: 1rem; border-bottom: 1px solid #eee">
                 <span
                   style="
@@ -71,12 +92,17 @@
                 </span>
               </td>
               <td style="padding: 1rem; border-bottom: 1px solid #eee">
-                <!-- Cambiar descuento rápido -->
                 <div style="display: flex; gap: 0.5rem; align-items: center">
                   <input
                     type="number"
                     [(ngModel)]="user.discountPercentage"
-                    style="width: 60px; padding: 0.3rem; border: 1px solid #ccc; border-radius: 4px"
+                    style="
+                      width: 60px;
+                      padding: 0.3rem;
+                      border: 1px solid #ccc;
+                      border-radius: 4px;
+                      box-sizing: border-box;
+                    "
                   />
                   <button
                     (click)="updateDiscount(user)"
@@ -95,7 +121,6 @@
                 </div>
               </td>
               <td style="padding: 1rem; border-bottom: 1px solid #eee">
-                <!-- Botón para Aprobar o Suspender -->
                 <button
                   (click)="toggleUserStatus(user)"
                   [style.background]="user.isActive ? '#dc3545' : '#28a745'"
@@ -107,24 +132,51 @@
                     cursor: pointer;
                     font-weight: bold;
                     font-size: 0.8rem;
+                    width: 100%;
                   "
                 >
                   {{ user.isActive ? 'Suspender' : 'Aprobar' }}
                 </button>
               </td>
 
-              <td style="padding: 1rem; border-bottom: 1px solid #eee">
+              <!-- ACCIONES -->
+              <td
+                style="
+                  padding: 1rem;
+                  border-bottom: 1px solid #eee;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.5rem;
+                "
+              >
+                <button
+                  (click)="openEditModal(user)"
+                  title="Editar Datos"
+                  style="
+                    background: #ffc107;
+                    color: #333;
+                    border: none;
+                    padding: 0.4rem 0.8rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    width: 100%;
+                  "
+                >
+                  ✏️ Editar
+                </button>
                 <button
                   (click)="descargarCotizadorCliente(user.id, user.fullName)"
                   title="Descargar Cotizador B2B"
                   style="
-                    padding: 0.4rem 0.8rem;
-                    background: #17a2b8; /* Un color cyan/info distinto al de editar */
+                    background: #17a2b8;
                     color: white;
                     border: none;
+                    padding: 0.4rem 0.8rem;
                     border-radius: 4px;
                     cursor: pointer;
-                    margin-left: 0.5rem;
+                    font-weight: bold;
+                    width: 100%;
                   "
                 >
                   📥 Excel
@@ -136,9 +188,9 @@
       </table>
     </div>
   } @else {
-    <!-- VISTA 2: FORMULARIO DE ALTA (Tu código anterior adaptado) -->
-    <div style="max-width: 600px; margin: 0 auto">
-      <p style="color: #666; margin-bottom: 2rem">
+    <!-- VISTA 2: FORMULARIO DE ALTA -->
+    <div style="max-width: 650px; margin: 0 auto">
+      <p style="color: #666; margin-bottom: 2rem; text-align: center">
         Creá un usuario para que el cliente pueda acceder a sus descuentos mayoristas.
       </p>
 
@@ -146,70 +198,192 @@
         (ngSubmit)="onSubmit()"
         style="
           background: white;
-          padding: 2rem;
+          padding: 2.5rem;
           border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          border: 1px solid #eee;
         "
       >
-        <!-- Mismo formulario tuyo... -->
         <div style="margin-bottom: 1rem">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
             >Nombre o Razón Social *</label
           >
           <input
             type="text"
             [(ngModel)]="client.fullName"
             name="fullName"
-            style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              box-sizing: border-box;
+            "
           />
         </div>
 
         <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
           <div style="flex: 1">
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">Email *</label>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
+              >Email *</label
+            >
             <input
               type="email"
               [(ngModel)]="client.email"
               name="email"
-              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
             />
           </div>
           <div style="flex: 1">
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold">CUIT</label>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
+              >CUIT</label
+            >
             <input
               type="text"
               [(ngModel)]="client.cuit"
               name="cuit"
               placeholder="Opcional"
-              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
             />
           </div>
         </div>
 
-        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem">
+        <div
+          style="
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+          "
+        >
           <div style="flex: 1">
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
               >Contraseña Temporal *</label
             >
             <input
               type="text"
               [(ngModel)]="client.password"
               name="password"
-              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
             />
           </div>
           <div style="flex: 1">
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold"
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
               >Tipo de Cliente</label
             >
             <select
               [(ngModel)]="client.role"
               name="role"
-              style="width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+                background: white;
+              "
             >
               <option value="b2b">Mayorista (B2B)</option>
               <option value="b2c">Minorista VIP (B2C)</option>
             </select>
+          </div>
+        </div>
+
+        <!-- SECCIÓN LOGÍSTICA -->
+        <h3 style="margin-top: 0; color: #666; font-size: 1.1rem; margin-bottom: 1rem">
+          Datos de Envío (Opcional)
+        </h3>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
+              >Teléfono</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="client.phone"
+              name="phone"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
+              >Dirección</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="client.address"
+              name="address"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem">
+          <div style="flex: 2">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
+              >Ciudad</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="client.city"
+              name="city"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444"
+              >C. Postal</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="client.zipCode"
+              name="zipCode"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
+            />
           </div>
         </div>
 
@@ -225,11 +399,181 @@
             font-weight: bold;
             font-size: 1.1rem;
             cursor: pointer;
+            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
           "
         >
           Registrar Cliente
         </button>
       </form>
+    </div>
+  }
+
+  <!-- MODAL DE EDICIÓN DE USUARIO -->
+  @if (showEditModal && editingUser) {
+    <div
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      "
+    >
+      <div
+        style="
+          background: white;
+          padding: 2rem;
+          border-radius: 8px;
+          width: 90%;
+          max-width: 550px; /* Ancho ajustado para que no choque */
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+          box-sizing: border-box; /* Fundamental para que el padding no desborde */
+        "
+      >
+        <h2
+          style="margin-top: 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5rem"
+        >
+          Editar Datos: {{ editingUser.fullName }}
+        </h2>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem">
+          <div>
+            <label style="font-weight: bold; font-size: 0.9rem; color: #555"
+              >Nombre o Razón Social</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editingUser.fullName"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 0.3rem;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+
+          <div style="display: flex; gap: 1rem">
+            <div style="flex: 1">
+              <label style="font-weight: bold; font-size: 0.9rem; color: #555">Teléfono</label>
+              <input
+                type="text"
+                [(ngModel)]="editingUser.phone"
+                style="
+                  width: 100%;
+                  padding: 0.8rem;
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                  margin-top: 0.3rem;
+                  box-sizing: border-box;
+                "
+              />
+            </div>
+            <div style="flex: 1">
+              <label style="font-weight: bold; font-size: 0.9rem; color: #555">CUIT</label>
+              <input
+                type="text"
+                [(ngModel)]="editingUser.cuit"
+                style="
+                  width: 100%;
+                  padding: 0.8rem;
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                  margin-top: 0.3rem;
+                  box-sizing: border-box;
+                "
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style="font-weight: bold; font-size: 0.9rem; color: #555">Dirección</label>
+            <input
+              type="text"
+              [(ngModel)]="editingUser.address"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-top: 0.3rem;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+
+          <div style="display: flex; gap: 1rem">
+            <div style="flex: 2">
+              <label style="font-weight: bold; font-size: 0.9rem; color: #555">Ciudad</label>
+              <input
+                type="text"
+                [(ngModel)]="editingUser.city"
+                style="
+                  width: 100%;
+                  padding: 0.8rem;
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                  margin-top: 0.3rem;
+                  box-sizing: border-box;
+                "
+              />
+            </div>
+            <div style="flex: 1">
+              <label style="font-weight: bold; font-size: 0.9rem; color: #555">C. Postal</label>
+              <input
+                type="text"
+                [(ngModel)]="editingUser.zipCode"
+                style="
+                  width: 100%;
+                  padding: 0.8rem;
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                  margin-top: 0.3rem;
+                  box-sizing: border-box;
+                "
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem">
+          <button
+            (click)="closeEditModal()"
+            style="
+              padding: 0.8rem 1.5rem;
+              background: #eee;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: bold;
+              color: #333;
+            "
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="saveUserEdits()"
+            style="
+              padding: 0.8rem 1.5rem;
+              background: #0056b3;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: bold;
+              color: white;
+            "
+          >
+            Guardar Cambios
+          </button>
+        </div>
+      </div>
     </div>
   }
 </main>

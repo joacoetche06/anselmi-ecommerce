@@ -12,6 +12,7 @@ import { OrderTracking } from './order-tracking/order-tracking';
 import { AdminProducts } from './admin-products/admin-products';
 import { Home } from './home/home';
 import { AdminConfigComponent } from './admin-config/admin-config';
+import { MyData } from './my-data/my-data';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -20,6 +21,8 @@ export const routes: Routes = [
   { path: 'cart', component: Cart },
   { path: 'login', component: Login },
   { path: 'track-order', component: OrderTracking },
+
+  { path: 'my-data', component: MyData, canActivate: [authGuard] },
 
   // Cliente Mayorista
   { path: 'my-orders', component: MyOrders, canActivate: [authGuard] },

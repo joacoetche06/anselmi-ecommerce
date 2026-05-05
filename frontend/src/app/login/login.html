@@ -2,23 +2,28 @@
   style="
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 80vh;
+    align-items: flex-start; /* IMPORTANTE: Cambiá center por flex-start */
     font-family: sans-serif;
   "
 >
   <div
     style="
       width: 100%;
-      max-width: 400px;
-      padding: 2rem;
+      max-width: 450px; /* Un poquito más ancho */
+      margin: 1rem 0; /* Margen arriba y abajo para que respire */
+      padding: 1rem; /* Más padding interior */
+      padding-top: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 8px;
       background: #fff;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     "
   >
-    <h2 style="text-align: center; color: #333; margin-bottom: 1.5rem">Iniciar Sesión</h2>
+    <h2 style="text-align: center; color: #333; margin-bottom: 1.5rem">
+      {{ isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión' }}
+    </h2>
 
+    <!-- Manejo de Mensajes de Error y Éxito -->
     @if (errorMessage) {
       <div
         style="
@@ -34,59 +39,283 @@
       </div>
     }
 
-    <form (ngSubmit)="onSubmit()">
-      <div style="margin-bottom: 1rem">
-        <label style="display: block; margin-bottom: 0.5rem; color: #555">Email</label>
-        <input
-          type="email"
-          name="email"
-          [(ngModel)]="email"
-          style="
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-            box-sizing: border-box;
-          "
-          placeholder="ejemplo@correo.com"
-        />
-      </div>
-
-      <div style="margin-bottom: 1.5rem">
-        <label style="display: block; margin-bottom: 0.5rem; color: #555">Contraseña</label>
-        <input
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-          style="
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-            box-sizing: border-box;
-          "
-          placeholder="Tu contraseña"
-        />
-      </div>
-
-      <button
-        type="submit"
+    @if (successMessage) {
+      <div
         style="
-          width: 100%;
-          padding: 1rem;
-          background: #0056b3;
-          color: white;
-          border: none;
+          background: #d4edda;
+          color: #155724;
+          padding: 0.8rem;
           border-radius: 4px;
-          font-size: 1.1rem;
-          cursor: pointer;
-          font-weight: bold;
+          margin-bottom: 1rem;
+          text-align: center;
         "
       >
-        Ingresar
-      </button>
-    </form>
+        {{ successMessage }}
+      </div>
+    }
+
+    <!-- VISTA DE LOGIN -->
+    @if (!isRegisterMode) {
+      <form (ngSubmit)="onSubmit()">
+        <div style="margin-bottom: 1rem">
+          <label style="display: block; margin-bottom: 0.5rem; color: #555">Email</label>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+
+        <div style="margin-bottom: 1.5rem">
+          <label style="display: block; margin-bottom: 0.5rem; color: #555">Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+            placeholder="Tu contraseña"
+          />
+        </div>
+
+        <button
+          type="submit"
+          style="
+            width: 100%;
+            padding: 1rem;
+            background: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+          "
+        >
+          Ingresar
+        </button>
+
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #666">
+          ¿No tenés cuenta?
+          <a
+            href="javascript:void(0)"
+            (click)="toggleMode()"
+            style="color: #0056b3; text-decoration: none; font-weight: bold"
+            >Registrate acá</a
+          >
+        </p>
+      </form>
+    }
+
+    <!-- VISTA DE REGISTRO -->
+    <!-- VISTA DE REGISTRO -->
+    @else {
+      <form (ngSubmit)="doRegister()">
+        <div style="margin-bottom: 1rem">
+          <label style="display: block; margin-bottom: 0.5rem; color: #555"
+            >Nombre Completo *</label
+          >
+          <input
+            type="text"
+            name="regFullName"
+            [(ngModel)]="regFullName"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+            placeholder="Ej: Juan Pérez"
+          />
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555">Email *</label>
+            <input
+              type="email"
+              name="regEmail"
+              [(ngModel)]="regEmail"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+              placeholder="juan@correo.com"
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555">Contraseña *</label>
+            <input
+              type="password"
+              name="regPassword"
+              [(ngModel)]="regPassword"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+              placeholder="Creá una contraseña"
+            />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555">Teléfono *</label>
+            <input
+              type="text"
+              name="regPhone"
+              [(ngModel)]="regPhone"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+              placeholder="Ej: 11 1234-5678"
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555"
+              >DNI / CUIT (Opc.)</label
+            >
+            <input
+              type="text"
+              name="regCuit"
+              [(ngModel)]="regCuit"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+              placeholder="Solo números"
+            />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem">
+          <label style="display: block; margin-bottom: 0.5rem; color: #555"
+            >Dirección de Envío *</label
+          >
+          <input
+            type="text"
+            name="regAddress"
+            [(ngModel)]="regAddress"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+            placeholder="Calle y Altura (Ej: Mitre 1234)"
+          />
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem">
+          <div style="flex: 2">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555"
+              >Ciudad / Localidad *</label
+            >
+            <input
+              type="text"
+              name="regCity"
+              [(ngModel)]="regCity"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+              placeholder="Ej: Avellaneda"
+            />
+          </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555">C. Postal *</label>
+            <input
+              type="text"
+              name="regZipCode"
+              [(ngModel)]="regZipCode"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+              "
+              placeholder="Ej: 1870"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          style="
+            width: 100%;
+            padding: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+          "
+        >
+          Crear Cuenta
+        </button>
+
+        <p
+          style="
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            color: #666;
+          "
+        >
+          ¿Ya tenés cuenta?
+          <a
+            href="javascript:void(0)"
+            (click)="toggleMode()"
+            style="color: #0056b3; text-decoration: none; font-weight: bold"
+            >Iniciá sesión</a
+          >
+        </p>
+      </form>
+    }
   </div>
 </div>

@@ -1,0 +1,174 @@
+<main style="padding: 3rem 2rem; max-width: 600px; margin: 0 auto; font-family: sans-serif">
+  <h2 style="color: #333; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem">
+    ⚙️ Mis Datos Personales
+  </h2>
+
+  @if (loading) {
+    <p style="text-align: center; color: #666">Cargando tus datos...</p>
+  } @else if (userData) {
+    <div
+      style="
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eaeaea;
+      "
+    >
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+          "
+        >
+          Nombre Completo
+        </label>
+        <div style="font-size: 1.1rem; color: #333; font-weight: 500">
+          {{ userData.fullName }}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+          "
+        >
+          Email
+        </label>
+        <div style="font-size: 1.1rem; color: #333; font-weight: 500">
+          {{ userData.email }}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+          "
+        >
+          DNI / CUIT
+        </label>
+        <div style="font-size: 1.1rem; color: #333; font-weight: 500">
+          {{ userData.cuit || 'No especificado' }}
+        </div>
+      </div>
+
+      <!-- ... bloque del DNI / CUIT ... -->
+
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+          "
+        >
+          Teléfono
+        </label>
+        <div style="font-size: 1.1rem; color: #333; font-weight: 500">
+          {{ userData.phone || 'No especificado' }}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+          "
+        >
+          Domicilio de Entrega
+        </label>
+        <div style="font-size: 1.1rem; color: #333; font-weight: 500">
+          @if (userData.address) {
+            {{ userData.address }}, {{ userData.city }} (CP: {{ userData.zipCode }})
+          } @else {
+            No especificado
+          }
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+          "
+        >
+          Tipo de Cuenta
+        </label>
+        <div
+          style="
+            display: inline-block;
+            background: #e9ecef;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #495057;
+          "
+        >
+          {{
+            userData.role === 'b2c'
+              ? 'Minorista (Consumidor Final)'
+              : userData.role === 'b2b'
+                ? 'Mayorista'
+                : 'Administrador'
+          }}
+        </div>
+      </div>
+
+      <!-- Información exclusiva para mayoristas -->
+      @if (userData.role === 'b2b') {
+        <div
+          style="
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #e8f4f8;
+            border-left: 4px solid #0056b3;
+            border-radius: 4px;
+          "
+        >
+          <h4 style="margin: 0 0 0.5rem 0; color: #0056b3">Beneficios de Mayorista</h4>
+          <p style="margin: 0; font-size: 0.95rem; color: #333">
+            Tenés asignado un <strong>{{ userData.discountPercentage }}% de descuento</strong> sobre
+            el precio de lista de todos nuestros productos.
+          </p>
+        </div>
+      }
+
+      <div style="margin-top: 2rem; text-align: center">
+        <p style="font-size: 0.85rem; color: #999; font-style: italic">
+          Para modificar tus datos, por favor contactate por WhatsApp.
+        </p>
+      </div>
+    </div>
+  }
+</main>

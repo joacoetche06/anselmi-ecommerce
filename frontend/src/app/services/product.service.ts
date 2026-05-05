@@ -19,6 +19,8 @@ export interface Product {
   imageUrl?: string;
 
   requierePresupuesto?: boolean;
+
+  hidden?: boolean;
 }
 
 @Injectable({

@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+// Agregá HostListener acá arriba
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { CartService } from './services/cart.service';
@@ -16,7 +17,9 @@ export class App implements OnInit, OnDestroy {
   isAdmin = false;
   cartItemCount = 0;
 
-  // 1. Lista de frases de Maxi
+  // NUEVA VARIABLE: Para el menú de Mi Cuenta
+  isMenuOpen = false;
+
   phrases: string[] = [
     '¿No estás seguro si es el producto correcto? Escribinos y te ayudamos.',
     'Te ayudamos a elegir',
@@ -24,7 +27,6 @@ export class App implements OnInit, OnDestroy {
     'Te asesoramos gratis por WhatsApp',
   ];
 
-  // 2. Variables para controlar la rotación
   currentPhrase: string = this.phrases[0];
   private phraseInterval: any;
   private phraseIndex = 0;
@@ -46,7 +48,6 @@ export class App implements OnInit, OnDestroy {
       this.cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
     });
 
-    // 3. Hacemos que la frase cambie cada 3 segundos (3000 milisegundos)
     this.phraseInterval = setInterval(() => {
       this.phraseIndex = (this.phraseIndex + 1) % this.phrases.length;
       this.currentPhrase = this.phrases[this.phraseIndex];
@@ -57,18 +58,37 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-  // 4. Limpiamos el cronómetro por las dudas si el usuario se va
   ngOnDestroy() {
     if (this.phraseInterval) {
       clearInterval(this.phraseInterval);
     }
   }
 
+  // --- NUEVAS FUNCIONES PARA EL MENÚ ---
+  toggleMenu(event: Event) {
+    event.stopPropagation(); // Evita que el clic se propague al HostListener
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
+  }
+
+  // Si hace clic en cualquier lado de la pantalla, el menú se cierra
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.menu-container');
+    if (!clickedInside) {
+      this.isMenuOpen = false;
+    }
+  }
+  // ------------------------------------
+
   logout() {
     this.authService.logout();
-    // En lugar de recargar la página, navegamos al catálogo
     this.router.navigate(['/']).then(() => {
-      window.location.reload(); // Recargamos para limpiar estados globales y descuentos
+      window.location.reload();
     });
   }
 }

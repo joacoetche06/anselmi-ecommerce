@@ -21,25 +21,33 @@ export const getAdminProducts = async (
 };
 
 // --- OBTENER PRODUCTOS PARA EL CATÁLOGO (Con filtros y búsqueda) ---
-// (Esta función será llamada desde tu index.ts)
 export const getPublicProducts = async (req: Request): Promise<Product[]> => {
   const productRepo = AppDataSource.getRepository(Product);
 
   const { search, orderBy, ...filters } = req.query;
-  let whereConditions: any = { isActive: true };
 
-  if (search) {
-    whereConditions = [
-      { ...whereConditions, name: ILike(`%${search}%`) },
-      { ...whereConditions, sku: ILike(`%${search}%`) },
-    ];
-  }
+  // Condición base obligatoria: Activo y NO oculto
+  let baseCondition: any = { isActive: true, hidden: false };
 
+  // Agregamos filtros dinámicos (linea, color) a la condición base
   Object.keys(filters).forEach((key) => {
     if (filters[key]) {
-      whereConditions[key] = filters[key];
+      baseCondition[key] = filters[key];
     }
   });
+
+  let whereConditions: any;
+
+  if (search) {
+    // Si hay búsqueda, es: (baseCondition AND nombre coincide) OR (baseCondition AND sku coincide)
+    whereConditions = [
+      { ...baseCondition, name: ILike(`%${search}%`) },
+      { ...baseCondition, sku: ILike(`%${search}%`) },
+    ];
+  } else {
+    // Si no hay búsqueda, solo aplicamos la base
+    whereConditions = baseCondition;
+  }
 
   let order: any = { id: "DESC" };
   if (orderBy === "price_asc") order = { listPrice: "ASC" };
@@ -50,8 +58,6 @@ export const getPublicProducts = async (req: Request): Promise<Product[]> => {
     order: order,
   });
 };
-
-// ... (Acá sigue tu código de createProduct, updateProduct, deleteProduct) ...
 
 // --- CREAR UN NUEVO PRODUCTO ---
 export const createProduct = async (

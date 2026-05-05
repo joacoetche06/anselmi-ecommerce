@@ -9,8 +9,18 @@ const JWT_SECRET = "anselmi_secreto_super_seguro_2026"; // En producción esto v
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { fullName, email, password, cuit, role, isActive } = req.body;
-
+    const {
+      fullName,
+      email,
+      password,
+      cuit,
+      phone,
+      address,
+      city,
+      zipCode,
+      role,
+      isActive,
+    } = req.body;
     const userRepository = AppDataSource.getRepository(User);
 
     // 1. Verificar si el email ya existe
@@ -30,6 +40,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     newUser.email = email;
     newUser.passwordHash = passwordHash;
     newUser.cuit = cuit;
+    newUser.phone = phone; // <-- NUEVO
+    newUser.address = address; // <-- NUEVO
+    newUser.city = city; // <-- NUEVO
+    newUser.zipCode = zipCode; // <-- NUE
     newUser.role = role;
 
     // LÓGICA MEJORADA:
@@ -121,6 +135,10 @@ export const getAllUsers = async (
         "fullName",
         "email",
         "cuit",
+        "phone", // <-- NUEVO
+        "address", // <-- NUEVO
+        "city", // <-- NUEVO
+        "zipCode", // <-- NUEVO
         "role",
         "isActive",
         "discountPercentage",
@@ -162,5 +180,44 @@ export const updateUser = async (
   } catch (error) {
     console.error("Error actualizando usuario:", error);
     res.status(500).json({ message: "Error al actualizar usuario" });
+  }
+};
+
+// --- NUEVO: OBTENER DATOS DEL USUARIO LOGUEADO ---
+export const getMyData = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // req.user viene del middleware de autenticación (authMiddleware)
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: "No autorizado" });
+      return;
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+      return;
+    }
+
+    // Devolvemos los datos (sin la contraseña)
+    // Devolvemos los datos (sin la contraseña)
+    res.json({
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      cuit: user.cuit,
+      phone: user.phone, // <-- NUEVO
+      address: user.address, // <-- NUEVO
+      city: user.city, // <-- NUEVO
+      zipCode: user.zipCode, // <-- NUEVO
+      role: user.role,
+      discountPercentage: user.discountPercentage,
+    });
+  } catch (error) {
+    console.error("Error al obtener mis datos:", error);
+    res.status(500).json({ message: "Error interno" });
   }
 };

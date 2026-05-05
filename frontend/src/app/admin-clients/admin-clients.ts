@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { ModalService } from '../modal.service';
 import { ProductService } from '../services/product.service';
+import { zip } from 'rxjs';
 
 @Component({
   selector: 'app-admin-clients',
@@ -23,7 +24,15 @@ export class AdminClients implements OnInit {
     cuit: '',
     role: 'b2b',
     isActive: true,
+    zipCode: '',
+    city: '',
+    address: '',
+    phone: '',
   };
+
+  // Variables para Edición (Agregar abajo de client = {...})
+  showEditModal = false;
+  editingUser: any = null;
 
   constructor(
     private authService: AuthService,
@@ -62,6 +71,32 @@ export class AdminClients implements OnInit {
       });
   }
 
+  // Nuevas funciones para manejar la edición
+  openEditModal(user: any) {
+    // Clonamos el objeto para no modificar la tabla en vivo hasta que se guarde
+    this.editingUser = { ...user };
+    this.showEditModal = true;
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
+    this.editingUser = null;
+  }
+
+  saveUserEdits() {
+    if (!this.editingUser) return;
+
+    // Actualizamos al backend mandando TODOS los campos
+    this.authService.updateUser(this.editingUser.id, this.editingUser).subscribe({
+      next: () => {
+        this.modalService.show(`Datos de ${this.editingUser.fullName} actualizados.`);
+        this.loadUsers(); // Recarga la tabla
+        this.closeEditModal();
+      },
+      error: () => this.modalService.show('Error al actualizar los datos.', true),
+    });
+  }
+
   onSubmit() {
     if (!this.client.fullName || !this.client.email || !this.client.password) {
       this.modalService.show('Nombre, Email y Contraseña son obligatorios.', true);
@@ -78,6 +113,10 @@ export class AdminClients implements OnInit {
           cuit: '',
           role: 'b2b',
           isActive: true,
+          zipCode: '',
+          city: '',
+          address: '',
+          phone: '',
         };
         this.loadUsers(); // Recargamos la lista
         this.viewMode = 'list'; // Volvemos a la tabla

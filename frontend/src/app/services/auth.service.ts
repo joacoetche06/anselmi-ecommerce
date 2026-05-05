@@ -68,4 +68,9 @@ export class AuthService {
   updateUser(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/users/${id}`, data);
   }
+
+  // Obtener los datos del usuario logueado
+  getMyData(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/me`);
+  }
 }

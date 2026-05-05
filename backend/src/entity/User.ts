@@ -49,4 +49,16 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: "varchar", length: 50, nullable: true })
+  phone: string;
+
+  @Column({ type: "varchar", length: 255, nullable: true })
+  address: string;
+
+  @Column({ type: "varchar", length: 100, nullable: true })
+  city: string;
+
+  @Column({ type: "varchar", length: 20, nullable: true })
+  zipCode: string;
 }

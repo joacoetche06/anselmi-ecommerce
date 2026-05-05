@@ -116,4 +116,10 @@ export class Catalog implements OnInit {
       },
     });
   }
+
+  getStockLabel(stock: number): string {
+    if (stock < 10) return 'Disponibilidad: Baja (Consultar)';
+    if (stock >= 10 && stock <= 50) return 'Disponibilidad: Media';
+    return 'Disponibilidad: Alta (Stock Inmediato)';
+  }
 }

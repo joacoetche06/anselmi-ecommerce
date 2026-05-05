@@ -9,6 +9,7 @@ import {
   login,
   updateUser,
   getAllUsers,
+  getMyData,
 } from "./controllers/authController";
 import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
 import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
@@ -78,6 +79,9 @@ AppDataSource.initialize()
     app.put("/api/auth/users/:id", updateUser);
 
     app.get("/api/products/cotizador", optionalAuth, generateCotizador);
+
+    app.get("/api/auth/users", getAllUsers);
+    app.get("/api/auth/me", optionalAuth, getMyData);
 
     // --- LEVANTAR EL SERVIDOR ---
     const PORT = 3001;

@@ -25,6 +25,9 @@ export class App implements OnInit, OnDestroy {
     'Te ayudamos a elegir',
     '¿No sabés qué comprar?',
     'Te asesoramos gratis por WhatsApp',
+    '¿Estás armando un proyecto o una obra? Cotizá con nosotros.',
+    'Atención personalizada para corralones y profesionales.',
+    'Grandes volúmenes: Solicitá tu presupuesto a medida.',
   ];
 
   currentPhrase: string = this.phrases[0];

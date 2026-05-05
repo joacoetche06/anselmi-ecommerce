@@ -105,3 +105,84 @@ export const sendOrderConfirmationEmail = async (orderId: number) => {
     );
   }
 };
+
+// Agregá esta función al final de emailService.ts
+
+export const sendOrderStatusUpdateEmail = async (
+  to: string,
+  orderId: number,
+  status: string,
+) => {
+  let subject = "";
+  let title = "";
+  let message = "";
+  let iconColor = ""; // Para darle un toque visual al título
+
+  // Evaluamos el estado para setear los textos y colores
+  if (status === "PROCESSING" || status === "processing") {
+    subject = `Tu pedido #${orderId} está en preparación 📦`;
+    title = "¡Tu pedido está en marcha!";
+    message = `Queríamos avisarte que tu pedido <strong>#${orderId}</strong> ya está siendo preparado por nuestro equipo de depósito.<br><br>Te notificaremos nuevamente cuando esté listo para retiro o haya sido despachado.`;
+    iconColor = "#0056b3"; // Azul Anselmi
+  } else if (status === "COMPLETED" || status === "completed") {
+    subject = `Tu pedido #${orderId} ha sido completado ✅`;
+    title = "¡Pedido Completado!";
+    message = `Tu pedido <strong>#${orderId}</strong> ha sido marcado como completado. Esto significa que ya fue facturado y entregado o despachado con éxito.<br><br>¡Gracias por confiar en nosotros!`;
+    iconColor = "#28a745"; // Verde Éxito
+  } else if (status === "CANCELLED" || status === "cancelled") {
+    subject = `Aviso sobre tu pedido #${orderId} 🚫`;
+    title = "Pedido Cancelado";
+    message = `Te informamos que tu pedido <strong>#${orderId}</strong> ha sido cancelado en nuestro sistema.<br><br>Si ya habías realizado el pago o tenés alguna duda sobre esta cancelación, por favor contactate con nosotros respondiendo este correo o vía WhatsApp.`;
+    iconColor = "#dc3545"; // Rojo Peligro
+  } else {
+    // Si es "PENDING" u otro estado, abortamos sin enviar nada
+    return;
+  }
+
+  // Plantilla unificada (Igual a la de Confirmación)
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      <!-- Cabecera Azul Anselmi -->
+      <div style="background-color: #0056b3; padding: 30px 20px; text-align: center;">
+          <img src="cid:logo_anselmi" alt="Anselmi Logo" style="max-width: 200px; height: auto; margin-bottom: 15px; border-radius: 4px;">
+      </div>
+      
+      <!-- Cuerpo del mensaje -->
+      <div style="padding: 40px 30px;">
+          <h2 style="color: ${iconColor}; font-size: 20px; margin-top: 0;">${title}</h2>
+          <p style="color: #666666; font-size: 16px; line-height: 1.5;">Hola,</p>
+          <p style="color: #666666; font-size: 16px; line-height: 1.5;">${message}</p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+          <p style="color: #999999; font-size: 12px; margin: 0;">Ante cualquier consulta, podés responder a este correo o contactarnos por nuestro WhatsApp oficial.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: '"Anselmi Ecommerce" <ventas@anselmi.com>',
+      to,
+      subject,
+      html,
+      // FUNDAMENTAL: Adjuntar la imagen para que el CID funcione en la cabecera
+      attachments: [
+        {
+          filename: "logo.jpeg",
+          path: "../frontend/public/logo.jpeg",
+          cid: "logo_anselmi",
+        },
+      ],
+    });
+
+    console.log(`📧 Email de cambio de estado (${status}) enviado a ${to}`);
+    console.log(`🔗 Ver correo: ${nodemailer.getTestMessageUrl(info)}`);
+  } catch (error) {
+    console.error(
+      "❌ Error al enviar email de actualización de estado:",
+      error,
+    );
+  }
+};

@@ -5,7 +5,7 @@ import { OrderItem } from "../entity/OrderItem";
 import { User } from "../entity/User"; // Importamos User por las dudas
 import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import { sendOrderConfirmationEmail } from "../services/emailService";
-
+import { sendOrderStatusUpdateEmail } from "../services/emailService";
 const client = new MercadoPagoConfig({
   accessToken:
     "APP_USR-7958447396573219-042816-35a7ad716eeac92d24226fbabc817b48-3366635716",
@@ -183,37 +183,41 @@ export const updateOrderStatus = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { status } = req.body;
-
   try {
+    const { id } = req.params;
+    const { status } = req.body;
     const orderRepository = AppDataSource.getRepository(Order);
 
-    // Obtener id seguro desde params (req.params.id puede ser string o string[])
-    const rawId = req.params.id as string | string[] | undefined;
-    const idStr = Array.isArray(rawId) ? rawId[0] : rawId;
-    const orderId = idStr ? parseInt(idStr, 10) : NaN;
-
-    if (isNaN(orderId)) {
-      res.status(400).json({ message: "ID de orden inválido" });
-      return;
-    }
-
-    // Buscamos la orden por su ID
-    const order = await orderRepository.findOneBy({ id: orderId });
+    // IMPORTANTE: Agregamos relations: ["user"] para poder acceder al email del cliente logueado
+    const order = await orderRepository.findOne({
+      where: { id: parseInt(id as string, 10) },
+      relations: ["user"],
+    });
 
     if (!order) {
-      res.status(404).json({ message: "Orden no encontrada" });
+      res.status(404).json({ message: "Pedido no encontrado" });
       return;
     }
 
-    // Actualizamos el estado (TypeORM se encarga de validar contra el Enum)
-    order.status = status as any;
+    // Actualizamos el estado en la base de datos
+    order.status = status;
     await orderRepository.save(order);
 
-    res.json({ message: `Orden #${orderId} actualizada a ${status}`, order });
+    // --- NUEVA LÓGICA DE EMAILS ---
+    // Chequeamos si el pedido lo hizo un usuario registrado o un invitado.
+    // Si en tu entidad Order le pusiste otro nombre al email de invitado (ej: guestEmail), cambialo acá.
+    const clientEmail = order.user?.email || order.guestEmail;
+
+    if (clientEmail) {
+      // Disparamos el correo asíncronamente (sin el await para no trabar la respuesta HTTP del admin)
+      sendOrderStatusUpdateEmail(clientEmail, order.id, status);
+    }
+    // ------------------------------
+
+    res.json({ message: "Estado actualizado exitosamente", order });
   } catch (error) {
-    console.error("Error al actualizar el estado de la orden:", error);
-    res.status(500).json({ message: "Error interno al modificar la orden" });
+    console.error("Error al actualizar estado del pedido:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 };
 

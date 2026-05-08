@@ -18,8 +18,6 @@ export interface Product {
 
   imageUrl?: string;
 
-  requierePresupuesto?: boolean;
-
   hidden?: boolean;
 }
 
@@ -28,7 +26,15 @@ export interface Product {
 })
 export class ProductService {
   private apiUrl = 'http://localhost:3001/api/products';
+  // Adentro de la clase ProductService
 
+  // Memoria del Catálogo
+  public catalogState = {
+    searchTerm: '',
+    selectedOrder: '',
+    selectedLines: [] as string[],
+    selectedColors: [] as string[],
+  };
   constructor(private http: HttpClient) {}
 
   // Usado por el Catálogo (Pega en tu index.ts)

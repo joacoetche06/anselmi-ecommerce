@@ -109,28 +109,37 @@
     .actions-box {
       display: flex;
       gap: 1rem;
+      margin-top: 1rem;
 
-      button {
-        padding: 1rem 2rem;
+      // El selector "> *" aplica estas reglas a AMBOS botones por igual
+      > * {
+        flex: 1; // Hace que los dos ocupen el 50% del espacio exacto
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 1rem;
         border-radius: 4px;
         font-size: 1rem;
         font-weight: bold;
         cursor: pointer;
         border: none;
-        width: 100%;
+        text-decoration: none; // Le saca el subrayado al link de WhatsApp
+        box-sizing: border-box; // Clave para que los paddings no rompan el tamaño
         transition: background-color 0.2s;
+        text-align: center;
+      }
 
-        &.btn-primary {
-          background-color: #0033a0;
-          color: white;
-          &:hover { background-color: #002277; }
-        }
+      .btn-primary {
+        background-color: #0033a0;
+        color: white;
+        &:hover { background-color: #002277; }
+      }
 
-        &.btn-secondary {
-          background-color: #25D366; // Color WhatsApp
-          color: white;
-          &:hover { background-color: #128C7E; }
-        }
+      .btn-whatsapp {
+        background-color: #25D366;
+        color: white;
+        &:hover { background-color: #128C7E; }
       }
     }
   }
@@ -140,4 +149,60 @@
   text-align: center;
   padding: 5rem;
   color: #666;
+}
+
+.stock-semaphore-detail {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+
+  .label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .semaphore-blocks {
+    display: flex;
+    gap: 4px;
+
+    .block {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      transition: background-color 0.3s ease;
+    }
+  }
+
+  .status-text {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+  }
+}
+
+.breadcrumbs {
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: #888;
+
+  a {
+    color: #0033a0;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+
+  .separator {
+    margin: 0 0.5rem;
+    color: #ccc;
+  }
+
+  .current {
+    color: #555;
+    font-weight: 500;
+  }
 }

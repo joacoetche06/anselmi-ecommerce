@@ -58,7 +58,6 @@ AppDataSource.initialize()
               stockQuantity: p.stockQuantity,
               finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
               appliedDiscount: userDiscount,
-              requierePresupuesto: p.requierePresupuesto,
               imageUrl: p.imageUrl, // <--- ¡AGREGÁ ESTA LÍNEA ACÁ!
             };
           });

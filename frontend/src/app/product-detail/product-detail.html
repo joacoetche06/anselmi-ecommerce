@@ -1,5 +1,12 @@
 <div class="product-detail-container" *ngIf="!loading && product">
-  <a routerLink="/catalogo" class="back-btn">← Volver al catálogo</a>
+  <nav class="breadcrumbs">
+    <a routerLink="/">Inicio</a>
+    <span class="separator">/</span>
+    <a routerLink="/catalogo">Catálogo</a>
+    <span class="separator">/</span>
+    <span class="current">{{ product.linea || 'Grifería' }}</span>
+  </nav>
+  <!-- <a routerLink="/catalogo" class="back-btn">← Volver al catálogo</a> -->
 
   <div class="product-layout">
     <div class="image-column">
@@ -29,19 +36,59 @@
         >
       </div>
 
+      <div class="stock-semaphore-detail" [title]="getStockLabel(product.stockQuantity)">
+        <span class="label">Disponibilidad:</span>
+
+        <div class="semaphore-blocks">
+          <div
+            class="block"
+            [style.background]="getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'"
+          ></div>
+          <div
+            class="block"
+            [style.background]="getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'"
+          ></div>
+
+          <div
+            class="block"
+            [style.background]="getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'"
+          ></div>
+          <div
+            class="block"
+            [style.background]="getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'"
+          ></div>
+
+          <div
+            class="block"
+            [style.background]="getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'"
+          ></div>
+          <div
+            class="block"
+            [style.background]="getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'"
+          ></div>
+        </div>
+
+        <span class="status-text">{{ getStockLabel(product.stockQuantity).split(': ')[1] }}</span>
+      </div>
+
+      <div class="actions-box">
+        <button class="btn-primary" (click)="addToCart()">🛒 Agregar al Pedido</button>
+
+        <a
+          href="https://wa.me/5491100000000?text=Hola%20Anselmi..."
+          target="_blank"
+          class="btn-whatsapp"
+        >
+          💬 Consultar por cantidad
+        </a>
+      </div>
+
       <div class="specs-box" *ngIf="product.linea || product.color">
         <h3>Especificaciones Técnicas</h3>
         <ul>
           <li *ngIf="product.linea"><strong>Línea:</strong> {{ product.linea }}</li>
           <li *ngIf="product.color"><strong>Color/Acabado:</strong> {{ product.color }}</li>
         </ul>
-      </div>
-
-      <div class="actions-box">
-        <button *ngIf="!product.requierePresupuesto" class="btn-primary">Añadir al carrito</button>
-        <button *ngIf="product.requierePresupuesto" class="btn-secondary">
-          Solicitar Presupuesto (WhatsApp)
-        </button>
       </div>
     </div>
   </div>

@@ -51,9 +51,6 @@ export class Product {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ default: false })
-  requierePresupuesto: boolean;
-
   @Column({ type: "boolean", default: false })
   hidden: boolean;
 

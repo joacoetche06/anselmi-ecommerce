@@ -31,7 +31,15 @@ export class Catalog implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts(); // Llamamos a la función de carga
+    // 1. Recuperamos la memoria guardada en el servicio
+    const state = this.productService.catalogState;
+    this.searchTerm = state.searchTerm;
+    this.selectedOrder = state.selectedOrder;
+    this.selectedLines = [...state.selectedLines];
+    this.selectedColors = [...state.selectedColors];
+
+    // 2. Cargamos los productos con esos filtros
+    this.loadProducts();
   }
 
   // Función para el Semáforo de Stock
@@ -43,6 +51,13 @@ export class Catalog implements OnInit {
 
   // Carga los productos, opcionalmente enviando los filtros a la URL
   loadProducts() {
+    // 3. Antes de buscar, guardamos el estado actual en la memoria del servicio
+    this.productService.catalogState = {
+      searchTerm: this.searchTerm,
+      selectedOrder: this.selectedOrder,
+      selectedLines: [...this.selectedLines],
+      selectedColors: [...this.selectedColors],
+    };
     // 1. Armamos la cadena de consulta (query params)
     let queryParams = '?';
 

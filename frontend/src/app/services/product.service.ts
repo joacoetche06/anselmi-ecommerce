@@ -62,4 +62,8 @@ export class ProductService {
     }
     return this.http.get(url, { responseType: 'blob' });
   }
+
+  getProductById(id: number | string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
 }

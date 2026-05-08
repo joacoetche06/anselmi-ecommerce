@@ -56,4 +56,10 @@ export class Product {
 
   @Column({ type: "boolean", default: false })
   hidden: boolean;
+
+  @Column({ type: "varchar", nullable: true })
+  linea: string | null;
+
+  @Column({ type: "varchar", nullable: true })
+  color: string | null;
 }

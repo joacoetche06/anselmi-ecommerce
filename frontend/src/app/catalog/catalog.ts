@@ -5,11 +5,11 @@ import { ProductService, Product } from '../services/product.service';
 import { CartService } from '../services/cart.service';
 import { ModalService } from '../modal.service';
 import { AuthService } from '../services/auth.service';
-
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Sumamos los módulos
+  imports: [CommonModule, FormsModule, RouterModule], // Sumamos los módulos
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',
 })

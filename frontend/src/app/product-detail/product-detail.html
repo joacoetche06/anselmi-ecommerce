@@ -1,0 +1,52 @@
+<div class="product-detail-container" *ngIf="!loading && product">
+  <a routerLink="/catalogo" class="back-btn">← Volver al catálogo</a>
+
+  <div class="product-layout">
+    <div class="image-column">
+      <div
+        class="image-wrapper"
+        (mousemove)="updateZoom($event)"
+        (mouseleave)="zoomOrigin = '50% 50%'"
+      >
+        <img
+          [src]="product.imageUrl || 'assets/placeholder.png'"
+          [alt]="product.name"
+          class="product-image"
+          [style.transform-origin]="zoomOrigin"
+        />
+      </div>
+    </div>
+
+    <div class="info-column">
+      <p class="sku">SKU: {{ product.sku }}</p>
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <div class="price-box">
+        <h2 class="price">${{ product.finalPrice | number: '1.2-2' }}</h2>
+        <span class="iva-label" *ngIf="product.appliedDiscount === 0">Precio final con IVA</span>
+        <span class="iva-label" *ngIf="product.appliedDiscount > 0"
+          >Precio neto gremio (Descuento aplicado: {{ product.appliedDiscount }}%)</span
+        >
+      </div>
+
+      <div class="specs-box" *ngIf="product.linea || product.color">
+        <h3>Especificaciones Técnicas</h3>
+        <ul>
+          <li *ngIf="product.linea"><strong>Línea:</strong> {{ product.linea }}</li>
+          <li *ngIf="product.color"><strong>Color/Acabado:</strong> {{ product.color }}</li>
+        </ul>
+      </div>
+
+      <div class="actions-box">
+        <button *ngIf="!product.requierePresupuesto" class="btn-primary">Añadir al carrito</button>
+        <button *ngIf="product.requierePresupuesto" class="btn-secondary">
+          Solicitar Presupuesto (WhatsApp)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <p>Cargando información del producto...</p>
+</div>

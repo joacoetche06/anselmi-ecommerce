@@ -1,0 +1,143 @@
+.product-detail-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Arial', sans-serif;
+
+  .back-btn {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    &:hover { color: #0033a0; } // Azul corporativo
+  }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .image-column {
+    .image-wrapper {
+      border: 1px solid #eaeaea;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      background-color: #fff;
+      overflow: hidden;
+      cursor: crosshair; /* El cursor de mirilla/lupa */
+      
+      // Cuando pasamos el mouse por el CONTENEDOR, la imagen de adentro crece
+      &:hover .product-image {
+        transform: scale(1.5); /* Acá controlás qué tan fuerte es el zoom */
+      }
+
+      .product-image {
+        max-width: 100%;
+        height: auto;
+        /* IMPORTANTE: Transición solo para el transform, no para el transform-origin */
+        transition: transform 0.3s ease-out; 
+      }
+    }
+  }
+
+  .info-column {
+    .sku {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-title {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-box {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+
+      .price {
+        font-size: 2.5rem;
+        color: #0033a0;
+        margin: 0 0 0.5rem 0;
+      }
+
+      .iva-label {
+        font-size: 0.85rem;
+        color: #666;
+      }
+    }
+
+    .specs-box {
+      margin-bottom: 2rem;
+      
+      h3 {
+        font-size: 1.2rem;
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        
+        li {
+          padding: 0.5rem 0;
+          color: #555;
+          
+          strong {
+            color: #333;
+            min-width: 120px;
+            display: inline-block;
+          }
+        }
+      }
+    }
+
+    .actions-box {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        padding: 1rem 2rem;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        width: 100%;
+        transition: background-color 0.2s;
+
+        &.btn-primary {
+          background-color: #0033a0;
+          color: white;
+          &:hover { background-color: #002277; }
+        }
+
+        &.btn-secondary {
+          background-color: #25D366; // Color WhatsApp
+          color: white;
+          &:hover { background-color: #128C7E; }
+        }
+      }
+    }
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 5rem;
+  color: #666;
+}

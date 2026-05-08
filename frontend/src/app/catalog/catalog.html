@@ -173,27 +173,31 @@
               flex-direction: column;
             "
           >
-            <!-- IMAGEN DEL PRODUCTO -->
-            <div
-              style="
-                height: 180px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 1rem;
-                border-bottom: 1px solid #f8f9fa;
-                padding-bottom: 1rem;
-              "
+            <a
+              [routerLink]="['/producto', product.id]"
+              style="text-decoration: none; color: inherit; display: block; cursor: pointer"
             >
-              <img
-                [src]="product.imageUrl || 'placeholder.png'"
-                alt="Imagen de producto"
-                style="max-width: 100%; max-height: 100%; object-fit: contain"
-              />
-            </div>
+              <div
+                style="
+                  height: 180px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  margin-bottom: 1rem;
+                  border-bottom: 1px solid #f8f9fa;
+                  padding-bottom: 1rem;
+                "
+              >
+                <img
+                  [src]="product.imageUrl || 'placeholder.png'"
+                  alt="Imagen de producto"
+                  style="max-width: 100%; max-height: 100%; object-fit: contain"
+                />
+              </div>
 
-            <p style="color: gray; font-size: 0.8rem; margin: 0">SKU: {{ product.sku }}</p>
-            <h3 style="margin: 0.5rem 0; font-size: 1.1rem; color: #333">{{ product.name }}</h3>
+              <p style="color: gray; font-size: 0.8rem; margin: 0">SKU: {{ product.sku }}</p>
+              <h3 style="margin: 0.5rem 0; font-size: 1.1rem; color: #333">{{ product.name }}</h3>
+            </a>
 
             <!-- SEMÁFORO DE STOCK -->
             <div

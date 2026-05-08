@@ -80,6 +80,43 @@ AppDataSource.initialize()
 
     app.get("/api/products/cotizador", optionalAuth, generateCotizador);
 
+    // 1.5 Obtener UN producto por ID (con precio dinámico)
+    app.get(
+      "/api/products/:id",
+      optionalAuth,
+      async (req: AuthRequest, res: Response): Promise<any> => {
+        try {
+          const productRepo = AppDataSource.getRepository(Product);
+          // Buscamos el producto por el ID que viene en la URL
+          const p = await productRepo.findOneBy({
+            id: parseInt(req.params.id as string),
+          });
+
+          if (!p) {
+            return res.status(404).json({ message: "Producto no encontrado" });
+          }
+
+          // Aplicamos la misma lógica de precios que en el catálogo
+          const userDiscount = req.user ? req.user.discount : 0;
+          const netoAleph = Number(p.listPrice);
+          const netoConDescuento = netoAleph - netoAleph * (userDiscount / 100);
+          const precioFinalConIva = netoConDescuento * 1.21;
+
+          // Armamos la respuesta fusionando la data de la BD con los precios calculados
+          const productWithDynamicPricing = {
+            ...p, // Esto trae el id, sku, name, imageUrl, linea, color, etc.
+            finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
+            appliedDiscount: userDiscount,
+          };
+
+          res.json(productWithDynamicPricing);
+        } catch (error) {
+          console.error("Error al obtener el producto:", error);
+          res.status(500).json({ message: "Error interno del servidor" });
+        }
+      },
+    );
+
     app.get("/api/auth/users", getAllUsers);
     app.get("/api/auth/me", optionalAuth, getMyData);
 

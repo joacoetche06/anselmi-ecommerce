@@ -40,6 +40,8 @@ export class ProductDetailComponent implements OnInit {
   filteredReviews: any[] = [];
   selectedFilter: string | number = 'all';
 
+  relatedProducts: any[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
@@ -49,11 +51,23 @@ export class ProductDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const productId = this.route.snapshot.paramMap.get('id');
-    if (productId) {
-      this.fetchProduct(productId);
-      this.loadReviews(productId); // <-- Cargar reseñas al iniciar
-    }
+    this.route.paramMap.subscribe((params) => {
+      const productId = params.get('id');
+      if (productId) {
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // <--- MAGIA ACÁ
+        this.loading = true;
+        this.fetchProduct(productId);
+        this.loadReviews(productId);
+        this.loadRelatedProducts(productId);
+      }
+    });
+  }
+
+  loadRelatedProducts(id: string | number) {
+    this.productService.getRelatedProducts(id).subscribe({
+      next: (data) => (this.relatedProducts = data),
+      error: (err) => console.error('Error cargando relacionados', err),
+    });
   }
 
   fetchProduct(id: string) {

@@ -99,4 +99,8 @@ export class ProductService {
   createCompanyReview(data: any): Observable<any> {
     return this.http.post('http://localhost:3001/api/reviews/company', data);
   }
+
+  getRelatedProducts(productId: string | number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3001/api/products/${productId}/related`);
+  }
 }

@@ -93,6 +93,24 @@
     </div>
   </div>
 
+  <div class="related-section" *ngIf="relatedProducts.length > 0">
+    <hr class="section-divider" />
+    <h2>También te puede interesar</h2>
+
+    <div class="related-grid">
+      @for (rel of relatedProducts; track rel.id) {
+        <div class="related-card" [routerLink]="['/producto', rel.id]">
+          <img [src]="rel.imageUrl || 'assets/placeholder.png'" [alt]="rel.name" />
+          <div class="related-info">
+            <span class="related-linea">{{ rel.linea || 'Grifería' }}</span>
+            <h4>{{ rel.name }}</h4>
+            <span class="related-price">${{ rel.finalPrice | number: '1.2-2' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
   <div class="reviews-section">
     <hr class="section-divider" />
 

@@ -17,7 +17,7 @@ import productRoutes from "./routes/productRoutes";
 import { getPublicProducts } from "./controllers/productController";
 import { generateCotizador } from "./controllers/reportController";
 import { Review } from "./entity/Review";
-import { IsNull } from "typeorm";
+import { IsNull, Not } from "typeorm";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -114,6 +114,65 @@ AppDataSource.initialize()
         } catch (error) {
           console.error("Error al obtener el producto:", error);
           res.status(500).json({ message: "Error interno del servidor" });
+        }
+      },
+    );
+
+    // 1.6. Productos Relacionados (Cross-selling)
+    app.get(
+      "/api/products/:id/related",
+      optionalAuth,
+      async (req: AuthRequest, res: Response): Promise<any> => {
+        try {
+          const productId = parseInt(req.params.id as string);
+          const productRepo = AppDataSource.getRepository(Product);
+
+          const product = await productRepo.findOneBy({ id: productId });
+          if (!product)
+            return res.status(404).json({ message: "No encontrado" });
+
+          let relatedProducts: Product[] = [];
+
+          // Si el producto tiene línea, buscamos otros de la misma línea
+          if (product.linea) {
+            relatedProducts = await productRepo.find({
+              where: {
+                linea: product.linea,
+                isActive: true,
+                hidden: false,
+                id: Not(productId),
+              },
+              take: 4, // Máximo 4 para que quede parejo en la grilla
+            });
+          }
+
+          // Si no tiene línea, o era el único de su línea, traemos 4 al azar/novedades
+          if (relatedProducts.length === 0) {
+            relatedProducts = await productRepo.find({
+              where: { isActive: true, hidden: false, id: Not(productId) },
+              take: 4,
+              order: { id: "DESC" },
+            });
+          }
+
+          // Aplicamos la misma lógica de precios dinámicos
+          const userDiscount = req.user ? req.user.discount : 0;
+          const mappedRelated = relatedProducts.map((p) => {
+            const netoAleph = Number(p.listPrice);
+            const netoConDescuento =
+              netoAleph - netoAleph * (userDiscount / 100);
+            const precioFinalConIva = netoConDescuento * 1.21;
+            return {
+              ...p,
+              finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
+              appliedDiscount: userDiscount,
+            };
+          });
+
+          res.json(mappedRelated);
+        } catch (error) {
+          console.error("Error en relacionados:", error);
+          res.status(500).json({ message: "Error interno" });
         }
       },
     );

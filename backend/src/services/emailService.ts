@@ -186,3 +186,48 @@ export const sendOrderStatusUpdateEmail = async (
     );
   }
 };
+
+export const sendPasswordResetEmail = async (
+  to: string,
+  resetToken: string,
+) => {
+  // Asumimos que tu frontend de Angular corre en el puerto 4200
+  const resetLink = `http://localhost:4200/reset-password?token=${resetToken}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0;">
+      <div style="padding: 40px 30px; text-align: center;">
+          <!-- Cabecera Azul Anselmi -->
+          <div style="background-color: #0056b3; padding: 30px 20px; text-align: center;">
+              <img src="cid:logo_anselmi" alt="Anselmi Logo" style="max-width: 200px; height: auto; margin-bottom: 15px; border-radius: 4px;">
+          </div>
+          <h2 style="color: #0033a0;">Recuperación de Contraseña</h2>
+          <p style="color: #666; font-size: 16px;">Hola,</p>
+          <p style="color: #666; font-size: 16px;">Recibimos una solicitud para restablecer tu contraseña en Anselmi Desarrollos Comerciales. Si fuiste vos, hacé clic en el botón de abajo:</p>
+          <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; margin: 20px 0; background-color: #0033a0; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Restablecer mi contraseña</a>
+          <p style="color: #999; font-size: 14px;">Este enlace expirará en 1 hora. Si no solicitaste esto, ignorá este correo.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: '"Anselmi Soporte" <soporte@anselmi.com>',
+      to,
+      subject: "Recuperá tu contraseña - Anselmi",
+      html,
+      attachments: [
+        {
+          filename: "logo.jpeg",
+          path: "../frontend/public/logo.jpeg",
+          cid: "logo_anselmi",
+        },
+      ],
+    });
+    console.log(
+      `[EMAIL] 🔗 Link de recuperación enviado: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+  } catch (error) {
+    console.error("[EMAIL] Error al enviar correo de reseteo:", error);
+  }
+};

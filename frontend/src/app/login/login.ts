@@ -31,14 +31,18 @@ export class Login {
   successMessage = '';
   isRegisterMode = false;
 
+  isForgotMode = false;
+  forgotEmail = '';
+  isSubmittingForgot = false;
+
   constructor(
     private authService: AuthService,
     private router: Router,
   ) {}
 
-  // Función para alternar entre Login y Registro
   toggleMode() {
     this.isRegisterMode = !this.isRegisterMode;
+    this.isForgotMode = false;
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -101,6 +105,37 @@ export class Login {
       },
       error: (err) => {
         this.errorMessage = err.error.message || 'Error al crear la cuenta.';
+      },
+    });
+  }
+
+  // Nueva función para cambiar a la vista de "Olvidé Clave"
+  showForgotPassword() {
+    this.isForgotMode = true;
+    this.isRegisterMode = false;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  // Función para mandar el mail
+  doForgotPassword() {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (!this.forgotEmail) {
+      this.errorMessage = 'Por favor, ingresá tu correo electrónico.';
+      return;
+    }
+
+    this.isSubmittingForgot = true;
+    this.authService.forgotPassword(this.forgotEmail).subscribe({
+      next: (res) => {
+        this.successMessage = res.message;
+        this.isSubmittingForgot = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Error al solicitar recuperación.';
+        this.isSubmittingForgot = false;
       },
     });
   }

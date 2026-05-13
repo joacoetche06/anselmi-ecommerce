@@ -15,12 +15,15 @@ import { AdminConfigComponent } from './admin-config/admin-config';
 import { MyData } from './my-data/my-data';
 import { ProductDetailComponent } from './product-detail/product-detail';
 import { Community } from './community/community';
+import { ResetPassword } from './reset-password/reset-password';
 
 export const routes: Routes = [
   { path: '', component: Home },
 
   { path: 'catalogo', component: Catalog },
   { path: 'comunidad', component: Community },
+
+  { path: 'reset-password', component: ResetPassword },
 
   { path: 'cart', component: Cart },
   { path: 'login', component: Login },

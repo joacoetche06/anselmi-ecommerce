@@ -61,4 +61,11 @@ export class User {
 
   @Column({ type: "varchar", length: 20, nullable: true })
   zipCode: string;
+
+  // --- CAMPOS PARA RECUPERAR CONTRASEÑA ---
+  @Column({ type: "varchar", length: 255, nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  resetPasswordExpires: Date | null;
 }

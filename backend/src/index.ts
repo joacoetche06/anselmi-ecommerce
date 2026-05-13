@@ -10,6 +10,8 @@ import {
   updateUser,
   getAllUsers,
   getMyData,
+  resetPassword,
+  forgotPassword,
 } from "./controllers/authController";
 import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
 import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
@@ -334,6 +336,10 @@ AppDataSource.initialize()
         res.status(500).json({ message: "Error" });
       }
     });
+
+    app.post("/api/auth/forgot-password", forgotPassword);
+
+    app.post("/api/auth/reset-password", resetPassword);
 
     app.get("/api/auth/users", getAllUsers);
     app.get("/api/auth/me", optionalAuth, getMyData);

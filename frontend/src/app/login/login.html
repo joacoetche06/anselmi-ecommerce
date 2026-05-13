@@ -1,17 +1,12 @@
 <div
-  style="
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* IMPORTANTE: Cambiá center por flex-start */
-    font-family: sans-serif;
-  "
+  style="display: flex; justify-content: center; align-items: flex-start; font-family: sans-serif"
 >
   <div
     style="
       width: 100%;
-      max-width: 450px; /* Un poquito más ancho */
-      margin: 1rem 0; /* Margen arriba y abajo para que respire */
-      padding: 1rem; /* Más padding interior */
+      max-width: 450px;
+      margin: 1rem 0;
+      padding: 1rem;
       padding-top: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -20,10 +15,11 @@
     "
   >
     <h2 style="text-align: center; color: #333; margin-bottom: 1.5rem">
-      {{ isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión' }}
+      {{
+        isForgotMode ? 'Recuperar Contraseña' : isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión'
+      }}
     </h2>
 
-    <!-- Manejo de Mensajes de Error y Éxito -->
     @if (errorMessage) {
       <div
         style="
@@ -38,12 +34,11 @@
         {{ errorMessage }}
       </div>
     }
-
     @if (successMessage) {
       <div
         style="
-          background: #d4edda;
-          color: #155724;
+          background: #e8f5e9;
+          color: #28a745;
           padding: 0.8rem;
           border-radius: 4px;
           margin-bottom: 1rem;
@@ -54,77 +49,55 @@
       </div>
     }
 
-    <!-- VISTA DE LOGIN -->
-    @if (!isRegisterMode) {
-      <form (ngSubmit)="onSubmit()">
-        <div style="margin-bottom: 1rem">
-          <label style="display: block; margin-bottom: 0.5rem; color: #555">Email</label>
-          <input
-            type="email"
-            name="email"
-            [(ngModel)]="email"
-            style="
-              width: 100%;
-              padding: 0.8rem;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              font-size: 1rem;
-              box-sizing: border-box;
-            "
-            placeholder="ejemplo@correo.com"
-          />
-        </div>
+    @if (isForgotMode) {
+      <p style="text-align: center; color: #666; font-size: 0.95rem; margin-bottom: 1.5rem">
+        Ingresá tu correo electrónico y te enviaremos un enlace para crear una nueva contraseña.
+      </p>
 
-        <div style="margin-bottom: 1.5rem">
-          <label style="display: block; margin-bottom: 0.5rem; color: #555">Contraseña</label>
-          <input
-            type="password"
-            name="password"
-            [(ngModel)]="password"
-            style="
-              width: 100%;
-              padding: 0.8rem;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              font-size: 1rem;
-              box-sizing: border-box;
-            "
-            placeholder="Tu contraseña"
-          />
-        </div>
-
-        <button
-          type="submit"
+      <div style="margin-bottom: 1.5rem">
+        <label style="display: block; margin-bottom: 0.5rem; color: #555">Email</label>
+        <input
+          type="email"
+          [(ngModel)]="forgotEmail"
           style="
             width: 100%;
-            padding: 1rem;
-            background: #0056b3;
-            color: white;
-            border: none;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            font-weight: bold;
+            box-sizing: border-box;
           "
+          placeholder="tu@email.com"
+        />
+      </div>
+
+      <button
+        (click)="doForgotPassword()"
+        [disabled]="isSubmittingForgot"
+        style="
+          width: 100%;
+          padding: 1rem;
+          background: #0033a0;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 1.1rem;
+          cursor: pointer;
+          font-weight: bold;
+          margin-bottom: 1rem;
+        "
+      >
+        {{ isSubmittingForgot ? 'Enviando...' : 'Enviar enlace' }}
+      </button>
+
+      <p style="text-align: center; margin: 0; font-size: 0.9rem">
+        <a
+          href="javascript:void(0)"
+          (click)="isForgotMode = false"
+          style="color: #0033a0; font-weight: bold; text-decoration: none"
+          >← Volver al login</a
         >
-          Ingresar
-        </button>
-
-        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #666">
-          ¿No tenés cuenta?
-          <a
-            href="javascript:void(0)"
-            (click)="toggleMode()"
-            style="color: #0056b3; text-decoration: none; font-weight: bold"
-            >Registrate acá</a
-          >
-        </p>
-      </form>
-    }
-
-    <!-- VISTA DE REGISTRO -->
-    <!-- VISTA DE REGISTRO -->
-    @else {
+      </p>
+    } @else if (isRegisterMode) {
       <form (ngSubmit)="doRegister()">
         <div style="margin-bottom: 1rem">
           <label style="display: block; margin-bottom: 0.5rem; color: #555"
@@ -313,6 +286,85 @@
             (click)="toggleMode()"
             style="color: #0056b3; text-decoration: none; font-weight: bold"
             >Iniciá sesión</a
+          >
+        </p>
+      </form>
+    } @else {
+      <form (ngSubmit)="onSubmit()">
+        <div style="margin-bottom: 1rem">
+          <label style="display: block; margin-bottom: 0.5rem; color: #555">Email</label>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+
+        <div style="margin-bottom: 1.5rem">
+          <label style="display: block; margin-bottom: 0.5rem; color: #555">Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+            placeholder="Tu contraseña"
+          />
+        </div>
+
+        <button
+          type="submit"
+          style="
+            width: 100%;
+            padding: 1rem;
+            background: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+          "
+        >
+          Ingresar
+        </button>
+
+        <div style="text-align: center; margin-top: 1rem">
+          <a
+            href="javascript:void(0)"
+            (click)="showForgotPassword()"
+            style="
+              color: #666;
+              font-size: 0.9rem;
+              text-decoration: none;
+              border-bottom: 1px solid #ccc;
+            "
+            >¿Olvidaste tu contraseña?</a
+          >
+        </div>
+
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #666">
+          ¿No tenés cuenta?
+          <a
+            href="javascript:void(0)"
+            (click)="toggleMode()"
+            style="color: #0056b3; text-decoration: none; font-weight: bold"
+            >Registrate acá</a
           >
         </p>
       </form>

@@ -4,7 +4,9 @@ import { AppDataSource } from "../data-source";
 import { User, UserRole } from "../entity/User";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-
+import crypto from "crypto";
+import { MoreThan } from "typeorm";
+import { sendPasswordResetEmail } from "../services/emailService";
 const JWT_SECRET = "anselmi_secreto_super_seguro_2026"; // En producción esto va en un archivo .env
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -219,5 +221,84 @@ export const getMyData = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error("Error al obtener mis datos:", error);
     res.status(500).json({ message: "Error interno" });
+  }
+};
+
+// --- SOLICITAR RECUPERACIÓN DE CONTRASEÑA ---
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ email });
+
+    // No le decimos al frontend si el mail no existe por seguridad (evita escaneo de mails)
+    if (!user) {
+      res.json({
+        message: "Si el correo existe, recibirás un enlace de recuperación.",
+      });
+      return;
+    }
+
+    // Generamos un token aleatorio seguro de 32 caracteres
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Lo guardamos en el usuario con 1 hora de validez
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hora en ms
+    await userRepository.save(user);
+
+    // Mandamos el mail
+    await sendPasswordResetEmail(user.email, resetToken);
+
+    res.json({
+      message: "Si el correo existe, recibirás un enlace de recuperación.",
+    });
+  } catch (error) {
+    console.error("Error en forgotPassword:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+// --- GUARDAR LA NUEVA CONTRASEÑA ---
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+    const userRepository = AppDataSource.getRepository(User);
+
+    // Buscamos al usuario que tenga ESE token y que NO esté vencido
+    const user = await userRepository.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: MoreThan(new Date()), // Que la fecha de vencimiento sea mayor a AHORA
+      },
+    });
+
+    if (!user) {
+      res.status(400).json({ message: "El token es inválido o ha expirado." });
+      return;
+    }
+
+    // Encriptamos la nueva contraseña
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+
+    // Limpiamos los campos del token para que no se pueda volver a usar
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await userRepository.save(user);
+
+    res.json({
+      message: "Contraseña actualizada exitosamente. Ya podés iniciar sesión.",
+    });
+  } catch (error) {
+    console.error("Error en resetPassword:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 };

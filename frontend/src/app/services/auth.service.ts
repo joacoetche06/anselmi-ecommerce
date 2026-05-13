@@ -69,8 +69,15 @@ export class AuthService {
     return this.http.put(`${this.apiUrl}/users/${id}`, data);
   }
 
-  // Obtener los datos del usuario logueado
   getMyData(): Observable<any> {
     return this.http.get(`${this.apiUrl}/me`);
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword });
   }
 }

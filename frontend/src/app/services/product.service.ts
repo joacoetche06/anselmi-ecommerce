@@ -72,4 +72,31 @@ export class ProductService {
   getProductById(id: number | string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
+
+  // --- RESEÑAS ---
+  getLatestReviews(): Observable<any[]> {
+    // Le pegamos a la ruta global de reviews
+    return this.http.get<any[]>('http://localhost:3001/api/reviews/latest');
+  }
+
+  // Obtener reseñas de un producto específico
+  getReviewsByProduct(productId: number | string): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3001/api/products/${productId}/reviews`);
+  }
+
+  // Enviar una nueva reseña
+  createReview(
+    productId: number | string,
+    reviewData: { rating: number; comment: string },
+  ): Observable<any> {
+    return this.http.post(`http://localhost:3001/api/products/${productId}/reviews`, reviewData);
+  }
+
+  getCompanyReviews(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:3001/api/reviews/company');
+  }
+
+  createCompanyReview(data: any): Observable<any> {
+    return this.http.post('http://localhost:3001/api/reviews/company', data);
+  }
 }

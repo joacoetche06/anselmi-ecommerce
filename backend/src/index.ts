@@ -16,6 +16,8 @@ import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los i
 import productRoutes from "./routes/productRoutes";
 import { getPublicProducts } from "./controllers/productController";
 import { generateCotizador } from "./controllers/reportController";
+import { Review } from "./entity/Review";
+import { IsNull } from "typeorm";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -115,6 +117,164 @@ AppDataSource.initialize()
         }
       },
     );
+
+    // --- RUTAS DE RESEÑAS (COMUNIDAD) ---
+
+    // 1. Crear una reseña (Protegida, requiere login)
+    app.post(
+      "/api/products/:id/reviews",
+      optionalAuth,
+      async (req: AuthRequest, res: Response): Promise<any> => {
+        try {
+          if (!req.user) {
+            return res
+              .status(401)
+              .json({ message: "Debes iniciar sesión para dejar una reseña." });
+          }
+
+          const { rating, comment } = req.body;
+          const productId = parseInt(req.params.id as string);
+
+          const productRepo = AppDataSource.getRepository(Product);
+          const reviewRepo = AppDataSource.getRepository(Review);
+
+          const product = await productRepo.findOneBy({ id: productId });
+          if (!product)
+            return res.status(404).json({ message: "Producto no encontrado" });
+
+          const newReview = reviewRepo.create({
+            rating,
+            comment,
+            user: { id: req.user.id } as any, // Pass only the user ID
+            product: product,
+            isApproved: true, // Por defecto lo aprobamos.
+          });
+
+          await reviewRepo.save(newReview);
+          res
+            .status(201)
+            .json({ message: "Reseña guardada con éxito", review: newReview });
+        } catch (error) {
+          console.error("Error al guardar reseña:", error);
+          res.status(500).json({ message: "Error interno del servidor" });
+        }
+      },
+    );
+
+    // 2. Traer reseñas de un producto específico (Para la vista de detalle)
+    app.get(
+      "/api/products/:id/reviews",
+      async (req: Request, res: Response) => {
+        try {
+          const productId = parseInt(req.params.id as string);
+          const reviewRepo = AppDataSource.getRepository(Review);
+
+          const reviews = await reviewRepo.find({
+            where: { product: { id: productId }, isApproved: true },
+            relations: ["user"], // Traemos la relación para saber el nombre del autor
+            order: { createdAt: "DESC" },
+          });
+
+          // Mapeamos para NO mandar datos sensibles del usuario (como el passwordHash)
+          const safeReviews = reviews.map((r) => ({
+            id: r.id,
+            rating: r.rating,
+            comment: r.comment,
+            createdAt: r.createdAt,
+            userName: r.user.fullName,
+          }));
+
+          res.json(safeReviews);
+        } catch (error) {
+          console.error("Error al traer reseñas:", error);
+          res.status(500).json({ message: "Error interno" });
+        }
+      },
+    );
+
+    // 3. Traer las últimas reseñas globales (Para la Home de Anselmi)
+    app.get("/api/reviews/latest", async (req: Request, res: Response) => {
+      try {
+        const reviewRepo = AppDataSource.getRepository(Review);
+        const latestReviews = await reviewRepo.find({
+          where: { isApproved: true, rating: 5 }, // Traemos solo las de 5 estrellas para la Home
+          relations: ["user", "product"],
+          order: { createdAt: "DESC" },
+          take: 3, // Solo las 3 más recientes
+        });
+
+        const safeReviews = latestReviews.map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          comment: r.comment,
+          createdAt: r.createdAt,
+          userName: r.user.fullName,
+          productName: r.product?.name,
+          productId: r.product?.id,
+        }));
+
+        res.json(safeReviews);
+      } catch (error) {
+        console.error("Error al traer últimas reseñas:", error);
+        res.status(500).json({ message: "Error interno" });
+      }
+    });
+
+    // 4. Crear una reseña de la EMPRESA (General)
+    app.post(
+      "/api/reviews/company",
+      optionalAuth,
+      async (req: AuthRequest, res: Response): Promise<any> => {
+        try {
+          if (!req.user)
+            return res
+              .status(401)
+              .json({ message: "Iniciá sesión para opinar." });
+
+          const { rating, comment } = req.body;
+          const reviewRepo = AppDataSource.getRepository(Review);
+
+          const newReview = reviewRepo.create({
+            rating,
+            comment,
+            user: { id: req.user.id } as any,
+            product: null, // <--- CLAVE: Al ser null, es institucional
+            isApproved: true,
+          });
+
+          await reviewRepo.save(newReview);
+          res
+            .status(201)
+            .json({ message: "¡Gracias por tu opinión sobre Anselmi!" });
+        } catch (error) {
+          res.status(500).json({ message: "Error al guardar" });
+        }
+      },
+    );
+
+    // 5. Traer TODAS las opiniones generales (Para la página de Comunidad)
+    app.get("/api/reviews/company", async (req: Request, res: Response) => {
+      try {
+        const reviewRepo = AppDataSource.getRepository(Review);
+        const reviews = await reviewRepo.find({
+          where: { product: IsNull(), isApproved: true }, // Buscamos solo las que no tienen producto
+          relations: ["user"],
+          order: { createdAt: "DESC" },
+        });
+
+        res.json(
+          reviews.map((r) => ({
+            id: r.id,
+            rating: r.rating,
+            comment: r.comment,
+            userName: r.user.fullName,
+            createdAt: r.createdAt,
+          })),
+        );
+      } catch (error) {
+        res.status(500).json({ message: "Error" });
+      }
+    });
 
     app.get("/api/auth/users", getAllUsers);
     app.get("/api/auth/me", optionalAuth, getMyData);

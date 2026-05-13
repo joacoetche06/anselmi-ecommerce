@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ModalService } from '../modal.service';
 import { CartService } from '../services/cart.service';
-// Importa tu servicio de carrito/auth si los necesitas para el precio o los botones
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service'; // <-- Importar esto
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.scss'],
 })
@@ -32,19 +33,26 @@ export class ProductDetailComponent implements OnInit {
     this.zoomOrigin = `${x}% ${y}%`;
   }
 
+  reviews: any[] = [];
+  newRating: number = 5;
+  newComment: string = '';
+  isSubmittingReview: boolean = false;
+  filteredReviews: any[] = [];
+  selectedFilter: string | number = 'all';
+
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private cartService: CartService, // <--- Nuevo
     private modalService: ModalService,
+    public authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    // Capturamos el ID de la URL
     const productId = this.route.snapshot.paramMap.get('id');
-
     if (productId) {
       this.fetchProduct(productId);
+      this.loadReviews(productId); // <-- Cargar reseñas al iniciar
     }
   }
 
@@ -78,6 +86,54 @@ export class ProductDetailComponent implements OnInit {
     if (this.product) {
       this.cartService.addToCart(this.product, 1);
       this.modalService.show(`¡${this.product.name} agregado al pedido!`);
+    }
+  }
+
+  loadReviews(id: string | number) {
+    this.productService.getReviewsByProduct(id).subscribe({
+      next: (data) => {
+        this.reviews = data; // 1. Guardamos los datos
+        this.applyFilter(); // 2. RECIÉN ACÁ filtramos, cuando ya tenemos la data
+      },
+      error: (err) => console.error('Error cargando reseñas', err),
+    });
+  }
+
+  submitReview() {
+    if (!this.newComment.trim()) return;
+
+    this.isSubmittingReview = true;
+    this.productService
+      .createReview(this.product.id, {
+        rating: this.newRating,
+        comment: this.newComment,
+      })
+      .subscribe({
+        next: () => {
+          this.modalService.show('¡Gracias por tu reseña!');
+          this.newComment = '';
+          this.newRating = 5;
+          this.loadReviews(this.product.id); // Recargamos la lista
+          this.isSubmittingReview = false;
+        },
+        error: (err) => {
+          this.modalService.show('Error al guardar la reseña', true);
+          this.isSubmittingReview = false;
+        },
+      });
+  }
+
+  // Reutilizamos la función de las estrellitas
+  getStars(rating: number): number[] {
+    return new Array(rating);
+  }
+
+  applyFilter() {
+    if (this.selectedFilter === 'all') {
+      this.filteredReviews = [...this.reviews];
+    } else {
+      const targetRating = Number(this.selectedFilter);
+      this.filteredReviews = this.reviews.filter((r) => r.rating === targetRating);
     }
   }
 }

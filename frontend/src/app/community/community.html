@@ -1,0 +1,77 @@
+<main class="community-container">
+  <div class="header-section">
+    <h1>Comunidad Anselmi</h1>
+    <p>
+      Conocé la experiencia de nuestros clientes y dejanos tu opinión sobre nuestra atención y
+      servicio.
+    </p>
+  </div>
+
+  <div class="review-form-box" *ngIf="authService.isLoggedIn()">
+    <h3>¿Cómo fue tu experiencia con Anselmi?</h3>
+
+    <div class="rating-selector">
+      <label>Tu calificación:</label>
+      <select [(ngModel)]="newRating">
+        <option [value]="5">5 Estrellas (Excelente)</option>
+        <option [value]="4">4 Estrellas (Muy buena)</option>
+        <option [value]="3">3 Estrellas (Buena)</option>
+        <option [value]="2">2 Estrellas (Regular)</option>
+        <option [value]="1">1 Estrella (Mala)</option>
+      </select>
+    </div>
+
+    <textarea
+      [(ngModel)]="newComment"
+      placeholder="Contanos sobre tu experiencia comprando con nosotros, la atención, los envíos..."
+      rows="4"
+    >
+    </textarea>
+
+    <button (click)="submitReview()" [disabled]="isSubmitting" class="btn-submit">
+      {{ isSubmitting ? 'Enviando...' : 'Publicar mi opinión' }}
+    </button>
+  </div>
+
+  <div class="login-prompt" *ngIf="!authService.isLoggedIn()">
+    <p>
+      Para compartir tu experiencia, por favor <a routerLink="/login">iniciá sesión</a> o
+      registrate.
+    </p>
+  </div>
+
+  <div class="reviews-wall-section">
+    <div class="reviews-filter" *ngIf="reviews.length > 0">
+      <label>Filtrar por calificación:</label>
+      <select [(ngModel)]="selectedFilter" (change)="applyFilter()">
+        <option value="all">Todas las opiniones</option>
+        <option value="5">5 Estrellas (Excelente)</option>
+        <option value="4">4 Estrellas (Muy buena)</option>
+        <option value="3">3 Estrellas (Buena)</option>
+        <option value="2">2 Estrellas (Regular)</option>
+        <option value="1">1 Estrella (Mala)</option>
+      </select>
+    </div>
+
+    <div class="reviews-wall">
+      @for (review of filteredReviews; track review.id) {
+        <div class="review-card">
+          <div class="stars">
+            @for (s of getStars(review.rating); track $index) {
+              ★
+            }
+          </div>
+          <p class="comment">"{{ review.comment }}"</p>
+          <div class="author-info">
+            <strong>{{ review.userName }}</strong>
+            <span class="date">{{ review.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <p>No hay opiniones con esta calificación.</p>
+        </div>
+      }
+    </div>
+  </div>
+</main>

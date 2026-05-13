@@ -92,8 +92,75 @@
       </div>
     </div>
   </div>
-</div>
 
-<div class="loading-state" *ngIf="loading">
-  <p>Cargando información del producto...</p>
+  <div class="reviews-section">
+    <hr class="section-divider" />
+
+    <h2>Opiniones de la Comunidad</h2>
+
+    <div class="review-form" *ngIf="authService.isLoggedIn()">
+      <h3>Dejanos tu comentario</h3>
+      <div class="rating-selector">
+        <label>Calificación:</label>
+        <select [(ngModel)]="newRating">
+          <option [value]="5">5 Estrellas (Excelente)</option>
+          <option [value]="4">4 Estrellas (Muy bueno)</option>
+          <option [value]="3">3 Estrellas (Bueno)</option>
+          <option [value]="2">2 Estrellas (Regular)</option>
+          <option [value]="1">1 Estrella (Malo)</option>
+        </select>
+      </div>
+      <textarea
+        [(ngModel)]="newComment"
+        placeholder="Contanos qué te pareció el producto..."
+        rows="4"
+      ></textarea>
+      <button (click)="submitReview()" [disabled]="isSubmittingReview" class="btn-submit">
+        {{ isSubmittingReview ? 'Enviando...' : 'Publicar Comentario' }}
+      </button>
+    </div>
+
+    <div class="login-prompt" *ngIf="!authService.isLoggedIn()">
+      <p>Para dejar una reseña, por favor <a routerLink="/login">iniciá sesión</a>.</p>
+    </div>
+
+    <div class="reviews-list-container">
+      <div class="reviews-filter" *ngIf="reviews.length > 0">
+        <label>Filtrar opiniones:</label>
+        <select [(ngModel)]="selectedFilter" (change)="applyFilter()">
+          <option value="all">Todas</option>
+          <option value="5">5 Estrellas</option>
+          <option value="4">4 Estrellas</option>
+          <option value="3">3 Estrellas</option>
+          <option value="2">2 Estrellas</option>
+          <option value="1">1 Estrella</option>
+        </select>
+      </div>
+
+      <div class="reviews-list">
+        @for (review of filteredReviews; track review.id) {
+          <div class="review-card">
+            <div class="review-header">
+              <span class="user-name">{{ review.userName }}</span>
+              <span class="stars">
+                @for (s of getStars(review.rating); track $index) {
+                  ★
+                }
+              </span>
+              <span class="review-date">{{ review.createdAt | date: 'dd/MM/yyyy' }}</span>
+            </div>
+            <p class="review-text">"{{ review.comment }}"</p>
+          </div>
+        } @empty {
+          <p class="no-reviews">
+            Aún no hay opiniones sobre este producto. ¡Sé el primero en comentar!
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <p>Cargando información del producto...</p>
+  </div>
 </div>

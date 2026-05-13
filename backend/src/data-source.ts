@@ -6,6 +6,7 @@ import { User } from "./entity/User"; // <-- Agregamos esto
 import { Order } from "./entity/Order"; // <-- Agregamos esto
 import { OrderItem } from "./entity/OrderItem"; // <-- Agregamos esto
 import { Config } from "./entity/Config";
+import { Review } from "./entity/Review";
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: "localhost", // Cambiaremos esto cuando subas a producción en Render/Supabase
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: "anselmi_db", // El nombre de la base que crees en pgAdmin/consola
   synchronize: true, // ¡Magia! Crea las tablas automáticamente según tus entidades (solo para desarrollo)
   logging: false,
-  entities: [Product, User, Order, OrderItem, Config], // <-- Actualizamos este array
+  entities: [Product, User, Order, OrderItem, Config, Review], // <-- Actualizamos este array
   migrations: [],
   subscribers: [],
 });

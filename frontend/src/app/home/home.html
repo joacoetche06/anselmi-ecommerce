@@ -107,4 +107,84 @@
       </div>
     </div>
   </section>
+
+  <section style="padding: 5rem 2rem; background-color: #f8f9fa; margin-top: 4rem">
+    <h2
+      style="
+        text-align: center;
+        color: #0033a0;
+        font-size: 2.2rem;
+        margin-bottom: 3rem;
+        font-weight: bold;
+      "
+    >
+      Lo que dicen nuestros clientes
+    </h2>
+
+    <div
+      style="
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        max-width: 1200px;
+        margin: 0 auto;
+      "
+    >
+      @for (review of latestReviews; track review.id) {
+        <div
+          style="
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 350px;
+            border-top: 4px solid #ffc107;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div style="color: #ffc107; font-size: 1.5rem; margin-bottom: 1rem">
+            @for (star of getStars(review.rating); track $index) {
+              ★
+            }
+          </div>
+
+          <p
+            style="
+              color: #555;
+              font-style: italic;
+              line-height: 1.6;
+              margin-bottom: 1.5rem;
+              flex-grow: 1;
+            "
+          >
+            "{{ review.comment }}"
+          </p>
+
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              border-top: 1px solid #eee;
+              padding-top: 1rem;
+            "
+          >
+            <strong style="color: #333; font-size: 1.1rem">{{ review.userName }}</strong>
+            <span style="color: #888; font-size: 0.85rem; margin-top: 0.3rem"
+              >Cliente de Anselmi Desarrollos Comerciales</span
+            >
+          </div>
+        </div>
+      } @empty {
+        <p style="color: #666; text-align: center; font-size: 1.1rem; font-style: italic">
+          Nuestra comunidad está creciendo. ¡Sé el primero en dejarnos tu opinión en nuestra sección
+          de
+          <a routerLink="/comunidad" style="color: #0056b3; text-decoration: underline">Opiniones</a
+          >!
+        </p>
+      }
+    </div>
+  </section>
 </main>

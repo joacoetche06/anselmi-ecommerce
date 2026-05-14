@@ -35,6 +35,8 @@ export class Login {
   forgotEmail = '';
   isSubmittingForgot = false;
 
+  regConfirmPassword = '';
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -77,8 +79,22 @@ export class Login {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.regFullName || !this.regEmail || !this.regPassword) {
-      this.errorMessage = 'Por favor, completá nombre, email y contraseña.';
+    // 1. Validaciones básicas
+    if (!this.regFullName || !this.regEmail || !this.regPassword || !this.regConfirmPassword) {
+      this.errorMessage = 'Por favor, completá todos los campos obligatorios.';
+      return;
+    }
+
+    // 2. Validar que las contraseñas coincidan
+    if (this.regPassword !== this.regConfirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden.';
+      return;
+    }
+
+    // 3. Validar formato de email simple
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.regEmail)) {
+      this.errorMessage = 'Por favor, ingresá un email válido.';
       return;
     }
 

@@ -16,6 +16,7 @@ import { MyData } from './my-data/my-data';
 import { ProductDetailComponent } from './product-detail/product-detail';
 import { Community } from './community/community';
 import { ResetPassword } from './reset-password/reset-password';
+import { OrderSuccess } from './order-success/order-success';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -24,6 +25,8 @@ export const routes: Routes = [
   { path: 'comunidad', component: Community },
 
   { path: 'reset-password', component: ResetPassword },
+
+  { path: 'order-success', component: OrderSuccess },
 
   { path: 'cart', component: Cart },
   { path: 'login', component: Login },

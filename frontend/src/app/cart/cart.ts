@@ -114,10 +114,7 @@ export class Cart implements OnInit {
           this.isProcessing = false; // 1. Apagamos la carga
           this.cartService.clearCart(); // 2. Vaciamos el carrito
 
-          this.modalService.show(
-            '¡Pedido confirmado con éxito! Tu número de orden es: #' + response.orderId,
-          );
-          this.router.navigate(['/my-orders']);
+          this.router.navigate(['/order-success'], { queryParams: { id: response.orderId } });
         }
       },
       error: (err) => {

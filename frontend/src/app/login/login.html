@@ -154,6 +154,24 @@
               placeholder="Creá una contraseña"
             />
           </div>
+          <div style="flex: 1">
+            <label style="display: block; margin-bottom: 0.5rem; color: #555"
+              >Repetir Clave *</label
+            >
+            <input
+              type="password"
+              name="regConfirmPassword"
+              [(ngModel)]="regConfirmPassword"
+              style="
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+              "
+              placeholder="Repetí tu clave"
+            />
+          </div>
         </div>
 
         <div style="display: flex; gap: 1rem; margin-bottom: 1rem">

@@ -16,14 +16,8 @@ export const createOrder = async (
   res: Response,
 ): Promise<void> => {
   const { items, total, guestName, guestDni, guestEmail } = req.body;
-  // DEBUG: Vamos a ver qué llega en req.user
-  console.log("--- PROCESANDO NUEVA ORDEN ---");
-  console.log("Usuario en request:", (req as any).user);
-
   const userData = (req as any).user;
   const userId = userData ? userData.id : null;
-
-  console.log("ID de usuario extraído:", userId);
 
   if (!items || items.length === 0) {
     res.status(400).json({ message: "El carrito está vacío" });
@@ -33,17 +27,19 @@ export const createOrder = async (
   try {
     const orderRepository = AppDataSource.getRepository(Order);
     const orderItemRepository = AppDataSource.getRepository(OrderItem);
+    const userRepo = AppDataSource.getRepository(User);
 
     const newOrder = new Order();
     newOrder.totalAmount = total;
     newOrder.status = OrderStatus.PENDING;
 
+    // Declaramos userEntity AFUERA del if para no perder sus datos más abajo
+    let userEntity = null;
+
     if (userId) {
-      const userRepo = AppDataSource.getRepository(User);
-      const userEntity = await userRepo.findOneBy({ id: userId });
+      userEntity = await userRepo.findOneBy({ id: userId });
       if (userEntity) newOrder.user = userEntity;
     } else {
-      // Si NO hay usuario (Invitado B2C), guardamos sus datos en la orden
       newOrder.guestName = guestName;
       newOrder.guestDni = guestDni;
       newOrder.guestEmail = guestEmail;
@@ -57,60 +53,57 @@ export const createOrder = async (
       newOrderItem.product = { id: item.productId } as any;
       newOrderItem.quantity = item.quantity;
       newOrderItem.unitPriceAtPurchase = item.price;
-
       await orderItemRepository.save(newOrderItem);
     }
 
-    console.log("Orden guardada con ID:", savedOrder.id);
-    console.log("------------------------------");
+    // === LÓGICA DE RUTEO CORREGIDA ===
+    const isWholesaler = userEntity?.role === "b2b";
 
-    // === NUEVA LÓGICA DE RUTEO B2B / B2C ===
-    if (!userId) {
-      // --- FLUJO B2C: INVITADOS ---
-      // Creamos la preferencia de pago en Mercado Pago
-      const preference = new Preference(client);
-
-      // 1. Armamos los items con los datos REALES del carrito
+    if (!userId || !isWholesaler) {
+      // --- FLUJO B2C (Invitados y Minoristas) -> Mercado Pago ---
       const mpItems = items.map((item: any) => ({
         id: item.productId.toString(),
         title: item.productName || "Producto Anselmi",
-        quantity: Number(item.quantity), // <-- CANTIDAD REAL
-        unit_price: Number(item.price), // <-- PRECIO REAL
+        quantity: Number(item.quantity),
+        unit_price: Number(item.price),
         currency_id: "ARS",
       }));
 
-      console.log("Enviando a Mercado Pago:", mpItems);
+      // Extraemos el mail de forma segura
+      const payerEmail =
+        userEntity?.email || guestEmail || "test_user_123@test.com";
 
-      // 2. Creamos la preferencia SIN auto_return
-      const prefResponse = await preference.create({
+      const prefResponse = await new Preference(client).create({
         body: {
           items: mpItems,
-          payer: {
-            email: "TESTUSER713025825533981039@testuser.com",
-          },
+          payer: { email: payerEmail },
           external_reference: savedOrder.id.toString(),
+
+          // ⚠️ IMPORTANTE: Mercado Pago ahora BLOQUEA el uso de "http://" y "localhost".
+          // Comentalo mientras estés en tu PC local para evitar el error 400.
+          // Al subirlo a producción, descomentalo y usá tu dominio HTTPS.
+          /*
           back_urls: {
-            success: "http://localhost:4200/track-order",
-            failure: "http://localhost:4200/cart",
-            pending: "http://localhost:4200/track-order",
+            success: "https://anselmi.com.ar/order-success?id=" + savedOrder.id,
+            failure: "https://anselmi.com.ar/cart",
+            pending: "https://anselmi.com.ar/order-success?id=" + savedOrder.id,
           },
-          // AÑADIMOS EL WEBHOOK ACÁ:
+          auto_return: "approved",
+          */
+
           notification_url:
             "https://plastic-decal-tactful.ngrok-free.dev/api/orders/webhook",
         },
       });
 
-      // Le mandamos al Frontend el link de pago (init_point)
       res.status(201).json({
         message: "Redirigiendo a Mercado Pago...",
         orderId: savedOrder.id,
         init_point: prefResponse.init_point,
       });
     } else {
-      // --- FLUJO B2B: MAYORISTAS ---
-      // DISPARAMOS EL CORREO AUTOMÁTICO ACÁ:
+      // --- FLUJO B2B (Mayoristas) -> Confirmación Directa ---
       await sendOrderConfirmationEmail(savedOrder.id);
-
       res.status(201).json({
         message: "¡Pedido guardado con éxito!",
         orderId: savedOrder.id,
@@ -121,8 +114,6 @@ export const createOrder = async (
     res.status(500).json({ message: "Error interno al procesar el pedido" });
   }
 };
-
-// Al final de src/controllers/orderController.ts
 
 export const getUserOrders = async (
   req: Request,

@@ -1,0 +1,72 @@
+<main
+  style="
+    max-width: 600px;
+    margin: 5rem auto;
+    text-align: center;
+    font-family: sans-serif;
+    padding: 2rem;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  "
+>
+  <div style="font-size: 5rem; margin-bottom: 1rem">🎉</div>
+  <h1 style="color: #28a745; margin-bottom: 1rem">¡Gracias por tu pedido!</h1>
+
+  <p style="color: #666; font-size: 1.1rem; line-height: 1.6">
+    Hemos recibido tu solicitud correctamente. <br />
+    @if (orderId) {
+      Tu número de orden es: <strong style="color: #0033a0">#{{ orderId }}</strong>
+    }
+  </p>
+
+  <div
+    style="
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 2rem 0;
+      text-align: left;
+    "
+  >
+    <h3 style="margin-top: 0; font-size: 1rem; color: #333">¿Qué sigue ahora?</h3>
+    <ul style="color: #555; font-size: 0.95rem; padding-left: 1.2rem">
+      <li>Te enviamos un mail con el detalle de la operación.</li>
+      <li>
+        Un asesor de Anselmi Desarrollos Comerciales procesará los datos en las próximas horas.
+      </li>
+      <li>Podrás seguir el estado desde tu panel de usuario.</li>
+    </ul>
+  </div>
+
+  <div style="display: flex; gap: 1rem; justify-content: center">
+    <button
+      routerLink="/my-orders"
+      style="
+        padding: 1rem 2rem;
+        background: #0033a0;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+      "
+    >
+      Ver mis pedidos
+    </button>
+    <button
+      routerLink="/catalogo"
+      style="
+        padding: 1rem 2rem;
+        background: white;
+        color: #0033a0;
+        border: 1px solid #0033a0;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+      "
+    >
+      Seguir comprando
+    </button>
+  </div>
+</main>

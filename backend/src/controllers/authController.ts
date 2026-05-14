@@ -42,22 +42,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     newUser.email = email;
     newUser.passwordHash = passwordHash;
     newUser.cuit = cuit;
-    newUser.phone = phone; // <-- NUEVO
-    newUser.address = address; // <-- NUEVO
-    newUser.city = city; // <-- NUEVO
-    newUser.zipCode = zipCode; // <-- NUE
-    newUser.role = role;
+    newUser.phone = phone;
+    newUser.address = address;
+    newUser.city = city;
+    newUser.zipCode = zipCode;
 
-    // LÓGICA MEJORADA:
-    // Si mandan el campo isActive desde el frontend (como hará el admin), lo respetamos.
-    // Si no lo mandan (ej: un registro público a futuro), por defecto los B2B nacen inactivos.
-    if (isActive !== undefined) {
-      newUser.isActive = isActive;
-    } else if (role === UserRole.B2B) {
-      newUser.isActive = false;
-    } else {
-      newUser.isActive = true;
-    }
+    // Si no mandan rol, por defecto es Minorista (B2C)
+    newUser.role = role || UserRole.B2C;
+
+    // LÓGICA DE ACTIVACIÓN AUTOMÁTICA:
+    // Los minoristas se activan solos. Los mayoristas (B2B) quedan en false.
+    newUser.isActive = newUser.role === UserRole.B2C;
 
     await userRepository.save(newUser);
 

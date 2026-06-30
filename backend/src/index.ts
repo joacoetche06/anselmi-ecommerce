@@ -27,7 +27,7 @@ import { Review } from "./entity/Review";
 import { IsNull, Not } from "typeorm";
 import { Config } from "./entity/Config";
 import { calculatePrices } from "./utils/pricing";
-
+import aiRoutes from "./routes/aiRoutes";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -41,6 +41,7 @@ app.use(
 app.use(express.json());
 app.use("/api/orders", orderRoutes); // <-- Conectamos la ruta
 app.use("/api/products", productRoutes);
+app.use("/api/ai", aiRoutes);
 AppDataSource.initialize()
   .then(async () => {
     console.log(
@@ -75,6 +76,7 @@ AppDataSource.initialize()
               cashPrice: prices.cashPrice,
               appliedDiscount: prices.appliedDiscount,
               imageUrl: p.imageUrl,
+              description: p.manualDescription || p.autoDescription || null,
             };
           });
           res.json(productsWithDynamicPricing);
@@ -119,6 +121,7 @@ AppDataSource.initialize()
 
           const productWithDynamicPricing = {
             ...p,
+            description: p.manualDescription || p.autoDescription || null,
             finalPrice: prices.finalPrice,
             cashPrice: prices.cashPrice,
             appliedDiscount: prices.appliedDiscount,

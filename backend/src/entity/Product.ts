@@ -59,4 +59,16 @@ export class Product {
 
   @Column({ type: "varchar", nullable: true })
   color: string | null;
+
+  // Descripción generada por Claude (automática)
+  @Column({ type: "text", nullable: true })
+  autoDescription: string | null;
+
+  // Descripción escrita/editada a mano (tiene prioridad sobre la auto)
+  @Column({ type: "text", nullable: true })
+  manualDescription: string | null;
+
+  // Cuándo se generó la descripción auto por última vez
+  @Column({ type: "timestamp", nullable: true })
+  descriptionGeneratedAt: Date | null;
 }

@@ -4,13 +4,15 @@ import { Order } from "../entity/Order";
 
 // Configuración de Ethereal (Reemplazá con tus datos)
 const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
+  host: process.env.SMTP_HOST || "smtp.ethereal.email",
+  port: Number(process.env.SMTP_PORT) || 587,
   auth: {
-    user: "cruz.watsica@ethereal.email", // <-- REEMPLAZAR
-    pass: "VSEBVeA5kYBrHTXGTN", // <-- REEMPLAZAR
+    user: process.env.SMTP_USER || "cruz.watsica@ethereal.email",
+    pass: process.env.SMTP_PASS || "VSEBVeA5kYBrHTXGTN",
   },
 });
+
+const MAIL_FROM = process.env.MAIL_FROM || '"Anselmi" <ventas@anselmi.com.ar>';
 
 export const sendOrderConfirmationEmail = async (orderId: number) => {
   try {
@@ -43,7 +45,7 @@ export const sendOrderConfirmationEmail = async (orderId: number) => {
       .join("");
 
     const mailOptions = {
-      from: '"Anselmi Sanitarios" <ventas@anselmi.com.ar>',
+      from: MAIL_FROM,
       to: recipientEmail,
       subject: `¡Confirmación de Pedido #${order.id}!`,
       html: `
@@ -163,7 +165,7 @@ export const sendOrderStatusUpdateEmail = async (
 
   try {
     const info = await transporter.sendMail({
-      from: '"Anselmi Ecommerce" <ventas@anselmi.com>',
+      from: MAIL_FROM,
       to,
       subject,
       html,
@@ -212,7 +214,7 @@ export const sendPasswordResetEmail = async (
 
   try {
     const info = await transporter.sendMail({
-      from: '"Anselmi Soporte" <soporte@anselmi.com>',
+      from: MAIL_FROM,
       to,
       subject: "Recuperá tu contraseña - Anselmi",
       html,

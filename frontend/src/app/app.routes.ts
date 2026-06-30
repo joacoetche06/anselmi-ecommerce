@@ -43,5 +43,5 @@ export const routes: Routes = [
   { path: 'admin-orders', component: AdminOrders, canActivate: [AdminGuard] },
   { path: 'admin-clients', component: AdminClients, canActivate: [AdminGuard] },
   { path: 'admin-products', component: AdminProducts, canActivate: [AdminGuard] }, // <-- Nueva ruta
-  { path: 'admin/config', component: AdminConfigComponent }, // Acordate de protegerla con tu AdminGuard si lo tenés
+  { path: 'admin/config', component: AdminConfigComponent, canActivate: [AdminGuard] },
 ];

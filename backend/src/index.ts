@@ -1,4 +1,5 @@
 // backend/src/index.ts
+import "dotenv/config";
 import "reflect-metadata";
 import express, { Request, Response } from "express"; // <-- Importación corregida y con tipos
 import cors from "cors"; // <-- Importación corregida
@@ -13,18 +14,30 @@ import {
   resetPassword,
   forgotPassword,
 } from "./controllers/authController";
-import { optionalAuth, AuthRequest } from "./middleware/authMiddleware";
+import {
+  optionalAuth,
+  AuthRequest,
+  requireAdmin,
+} from "./middleware/authMiddleware";
 import orderRoutes from "./routes/orderRoutes"; // <-- Agregalo arriba con los imports
 import productRoutes from "./routes/productRoutes";
 import { getPublicProducts } from "./controllers/productController";
 import { generateCotizador } from "./controllers/reportController";
 import { Review } from "./entity/Review";
 import { IsNull, Not } from "typeorm";
+import { Config } from "./entity/Config";
+import { calculatePrices } from "./utils/pricing";
+
 // Inicializamos la aplicación Express
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use("/api/orders", orderRoutes); // <-- Conectamos la ruta
 app.use("/api/products", productRoutes);
@@ -45,27 +58,25 @@ AppDataSource.initialize()
           // 🔥 ACÁ ESTÁ LA MAGIA: Llamamos a tu función con filtros
           const products = await getPublicProducts(req);
 
-          // ¿El usuario se logueó? Sacamos su descuento. Si es invitado, es 0.
           const userDiscount = req.user ? req.user.discount : 0;
+          const configRepo = AppDataSource.getRepository(Config);
+          const config =
+            (await configRepo.findOneBy({ id: 1 })) ??
+            ({ taxRate: 21, cashDiscount: 5 } as Config);
 
-          // Recorremos los productos y calculamos en tiempo real
           const productsWithDynamicPricing = products.map((p) => {
-            const netoAleph = Number(p.listPrice);
-            const netoConDescuento =
-              netoAleph - netoAleph * (userDiscount / 100);
-            const precioFinalConIva = netoConDescuento * 1.21;
-
+            const prices = calculatePrices(p, config, userDiscount);
             return {
               id: p.id,
               sku: p.sku,
               name: p.name,
               stockQuantity: p.stockQuantity,
-              finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
-              appliedDiscount: userDiscount,
-              imageUrl: p.imageUrl, // <--- ¡AGREGÁ ESTA LÍNEA ACÁ!
+              finalPrice: prices.finalPrice,
+              cashPrice: prices.cashPrice,
+              appliedDiscount: prices.appliedDiscount,
+              imageUrl: p.imageUrl,
             };
           });
-
           res.json(productsWithDynamicPricing);
         } catch (error) {
           console.error("Error al obtener productos:", error);
@@ -78,8 +89,8 @@ AppDataSource.initialize()
     app.post("/api/auth/register", register);
     app.post("/api/auth/login", login);
 
-    app.get("/api/auth/users", getAllUsers);
-    app.put("/api/auth/users/:id", updateUser);
+    app.get("/api/auth/users", requireAdmin, getAllUsers);
+    app.put("/api/auth/users/:id", requireAdmin, updateUser);
 
     app.get("/api/products/cotizador", optionalAuth, generateCotizador);
 
@@ -99,17 +110,18 @@ AppDataSource.initialize()
             return res.status(404).json({ message: "Producto no encontrado" });
           }
 
-          // Aplicamos la misma lógica de precios que en el catálogo
           const userDiscount = req.user ? req.user.discount : 0;
-          const netoAleph = Number(p.listPrice);
-          const netoConDescuento = netoAleph - netoAleph * (userDiscount / 100);
-          const precioFinalConIva = netoConDescuento * 1.21;
+          const configRepo = AppDataSource.getRepository(Config);
+          const config =
+            (await configRepo.findOneBy({ id: 1 })) ??
+            ({ taxRate: 21, cashDiscount: 5 } as Config);
+          const prices = calculatePrices(p, config, userDiscount);
 
-          // Armamos la respuesta fusionando la data de la BD con los precios calculados
           const productWithDynamicPricing = {
-            ...p, // Esto trae el id, sku, name, imageUrl, linea, color, etc.
-            finalPrice: parseFloat(precioFinalConIva.toFixed(2)),
-            appliedDiscount: userDiscount,
+            ...p,
+            finalPrice: prices.finalPrice,
+            cashPrice: prices.cashPrice,
+            appliedDiscount: prices.appliedDiscount,
           };
 
           res.json(productWithDynamicPricing);
@@ -341,8 +353,34 @@ AppDataSource.initialize()
 
     app.post("/api/auth/reset-password", resetPassword);
 
-    app.get("/api/auth/users", getAllUsers);
     app.get("/api/auth/me", optionalAuth, getMyData);
+
+    app.get("/api/config", async (_req, res) => {
+      const configRepo = AppDataSource.getRepository(Config);
+      let config = await configRepo.findOneBy({ id: 1 });
+      if (!config) {
+        config = configRepo.create({
+          taxRate: 21,
+          cashDiscount: 5,
+          defaultMargin: 1.5,
+        });
+        await configRepo.save(config);
+      }
+      res.json(config);
+    });
+
+    app.put("/api/config", requireAdmin, async (req, res) => {
+      const configRepo = AppDataSource.getRepository(Config);
+      let config = await configRepo.findOneBy({ id: 1 });
+      if (!config) config = configRepo.create({ id: 1 });
+      configRepo.merge(config, {
+        cashDiscount: req.body.cashDiscount,
+        defaultMargin: req.body.defaultMargin,
+        taxRate: req.body.taxRate,
+      });
+      await configRepo.save(config);
+      res.json(config);
+    });
 
     // --- LEVANTAR EL SERVIDOR ---
     const PORT = 3001;

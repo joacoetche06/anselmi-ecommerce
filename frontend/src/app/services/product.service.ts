@@ -14,6 +14,7 @@ export interface Product {
 
   // Datos Calculados por index.ts (Catálogo y Carrito)
   finalPrice?: number;
+  cashPrice?: number;
   appliedDiscount?: number;
 
   imageUrl?: string;

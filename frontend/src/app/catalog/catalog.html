@@ -256,7 +256,15 @@
               </div>
             </div>
 
-            <h2 style="color: #0056b3; margin: 0.5rem 0">${{ product.finalPrice }}</h2>
+            <h2 style="color: #0056b3; margin: 0.5rem 0">
+              ${{ product.finalPrice | number: '1.2-2' }}
+            </h2>
+            <p
+              *ngIf="product.cashPrice"
+              style="color: #28a745; font-size: 0.85rem; margin: 0 0 0.5rem"
+            >
+              ${{ product.cashPrice | number: '1.2-2' }} transf./efectivo
+            </p>
 
             @if ((product?.appliedDiscount ?? 0) > 0) {
               <div style="margin-bottom: 0.5rem">

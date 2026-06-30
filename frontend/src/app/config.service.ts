@@ -14,8 +14,7 @@ export interface AppConfig {
   providedIn: 'root',
 })
 export class ConfigService {
-  private apiUrl = 'http://localhost:3000/api/config'; // Asegurate de que este puerto sea el correcto
-
+  private apiUrl = 'http://localhost:3001/api/config';
   constructor(private http: HttpClient) {}
 
   // Obtener la configuración actual

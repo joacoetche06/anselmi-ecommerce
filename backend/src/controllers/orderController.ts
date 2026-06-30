@@ -7,8 +7,7 @@ import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import { sendOrderConfirmationEmail } from "../services/emailService";
 import { sendOrderStatusUpdateEmail } from "../services/emailService";
 const client = new MercadoPagoConfig({
-  accessToken:
-    "APP_USR-7958447396573219-042816-35a7ad716eeac92d24226fbabc817b48-3366635716",
+  accessToken: process.env.MP_ACCESS_TOKEN!,
 });
 
 export const createOrder = async (
@@ -84,15 +83,14 @@ export const createOrder = async (
           // Al subirlo a producción, descomentalo y usá tu dominio HTTPS.
           /*
           back_urls: {
-            success: "https://anselmi.com.ar/order-success?id=" + savedOrder.id,
-            failure: "https://anselmi.com.ar/cart",
-            pending: "https://anselmi.com.ar/order-success?id=" + savedOrder.id,
+            success: `${process.env.FRONTEND_URL || "http://localhost:4200"}/order-success?id=${savedOrder.id}`,
+            failure: `${process.env.FRONTEND_URL || "http://localhost:4200"}/cart`,
+            pending: `${process.env.FRONTEND_URL || "http://localhost:4200"}/order-success?id=${savedOrder.id}`,
           },
           auto_return: "approved",
           */
 
-          notification_url:
-            "https://plastic-decal-tactful.ngrok-free.dev/api/orders/webhook",
+          notification_url: `${process.env.BACKEND_PUBLIC_URL || "http://localhost:3001"}/api/orders/webhook`,
         },
       });
 

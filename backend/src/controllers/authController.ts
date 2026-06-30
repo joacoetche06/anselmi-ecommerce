@@ -7,8 +7,7 @@ import * as jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { MoreThan } from "typeorm";
 import { sendPasswordResetEmail } from "../services/emailService";
-const JWT_SECRET = "anselmi_secreto_super_seguro_2026"; // En producción esto va en un archivo .env
-
+const JWT_SECRET = process.env.JWT_SECRET!;
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const {

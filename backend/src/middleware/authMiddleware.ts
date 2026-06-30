@@ -2,8 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
 
-const JWT_SECRET = "anselmi_secreto_super_seguro_2026";
-
+const JWT_SECRET = process.env.JWT_SECRET!;
 // Extendemos el Request de Express para que acepte nuestra info de usuario
 export interface AuthRequest extends Request {
   user?: {
@@ -52,11 +51,9 @@ export const requireAdmin = (
         next(); // ¡Adelante, jefe!
         return;
       } else {
-        res
-          .status(403)
-          .json({
-            message: "Acceso denegado: Zona exclusiva para administradores.",
-          });
+        res.status(403).json({
+          message: "Acceso denegado: Zona exclusiva para administradores.",
+        });
         return;
       }
     } catch (err) {

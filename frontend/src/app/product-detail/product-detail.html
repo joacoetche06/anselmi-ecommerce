@@ -30,6 +30,10 @@
 
       <div class="price-box">
         <h2 class="price">${{ product.finalPrice | number: '1.2-2' }}</h2>
+        <p class="cash-price" *ngIf="product.cashPrice">
+          ${{ product.cashPrice | number: '1.2-2' }}
+          <span class="cash-label">pagando por transferencia o efectivo</span>
+        </p>
         <span class="iva-label" *ngIf="product.appliedDiscount === 0">Precio final con IVA</span>
         <span class="iva-label" *ngIf="product.appliedDiscount > 0"
           >Precio neto gremio (Descuento aplicado: {{ product.appliedDiscount }}%)</span

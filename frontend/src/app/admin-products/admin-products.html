@@ -89,6 +89,11 @@
               <td style="padding: 1rem; border-bottom: 1px solid #eee">
                 {{ product.name }}<br />
                 <small style="color: gray">SKU: {{ product.sku }}</small>
+                <span
+                  *ngIf="!product.isActive"
+                  style="font-size: 0.75rem; color: #dc3545; font-weight: bold; margin-left: 0.5rem"
+                  >(OCULTO)</span
+                >
               </td>
               <td style="padding: 1rem; border-bottom: 1px solid #eee">${{ product.listPrice }}</td>
               <td style="padding: 1rem; border-bottom: 1px solid #eee">
@@ -124,6 +129,7 @@
                   Editar
                 </button>
                 <button
+                  *ngIf="product.isActive"
                   (click)="deleteProduct(product.id)"
                   style="
                     background: #dc3545;
@@ -135,7 +141,22 @@
                     font-weight: bold;
                   "
                 >
-                  Borrar
+                  Ocultar
+                </button>
+                <button
+                  *ngIf="!product.isActive"
+                  (click)="reactivateProduct(product.id)"
+                  style="
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 0.4rem 0.8rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                  "
+                >
+                  Mostrar
                 </button>
               </td>
             </tr>

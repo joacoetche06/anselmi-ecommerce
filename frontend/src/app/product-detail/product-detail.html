@@ -40,41 +40,6 @@
         >
       </div>
 
-      <div class="stock-semaphore-detail" [title]="getStockLabel(product.stockQuantity)">
-        <span class="label">Disponibilidad:</span>
-
-        <div class="semaphore-blocks">
-          <div
-            class="block"
-            [style.background]="getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'"
-          ></div>
-          <div
-            class="block"
-            [style.background]="getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'"
-          ></div>
-
-          <div
-            class="block"
-            [style.background]="getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'"
-          ></div>
-          <div
-            class="block"
-            [style.background]="getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'"
-          ></div>
-
-          <div
-            class="block"
-            [style.background]="getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'"
-          ></div>
-          <div
-            class="block"
-            [style.background]="getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'"
-          ></div>
-        </div>
-
-        <span class="status-text">{{ getStockLabel(product.stockQuantity).split(': ')[1] }}</span>
-      </div>
-
       <div class="actions-box">
         <button class="btn-primary" (click)="addToCart()">🛒 Agregar al Pedido</button>
 

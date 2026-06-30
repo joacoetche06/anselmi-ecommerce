@@ -98,15 +98,18 @@ export class AdminProducts implements OnInit {
   }
 
   deleteProduct(id: number) {
-    if (confirm('¿Estás seguro de que querés borrar este producto de forma permanente?')) {
+    if (confirm('¿Ocultar este producto del catálogo? Podés volver a mostrarlo cuando quieras.')) {
       this.productService.deleteProduct(id).subscribe({
         next: () => this.loadProducts(),
-        error: (err) =>
-          this.modalService.show(
-            'No se pudo borrar. Asegurate de que no esté incluido en ninguna orden previa.',
-            true,
-          ),
+        error: (err) => this.modalService.show('No se pudo ocultar el producto.', true),
       });
     }
+  }
+
+  reactivateProduct(id: number) {
+    this.productService.updateProduct(id, { isActive: true }).subscribe({
+      next: () => this.loadProducts(),
+      error: (err) => this.modalService.show('No se pudo reactivar el producto.', true),
+    });
   }
 }

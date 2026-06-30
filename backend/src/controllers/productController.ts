@@ -109,7 +109,6 @@ export const deleteProduct = async (
 ): Promise<void> => {
   try {
     const productRepo = AppDataSource.getRepository(Product);
-    // Le agregamos 'as string' acá también
     const productId = parseInt(req.params.id as string, 10);
 
     const product = await productRepo.findOneBy({ id: productId });
@@ -118,13 +117,16 @@ export const deleteProduct = async (
       return;
     }
 
-    await productRepo.remove(product);
+    // Soft-delete: lo desactivamos en vez de borrarlo, para no romper
+    // los pedidos históricos (OrderItem) que lo referencian.
+    product.isActive = false;
+    await productRepo.save(product);
+
     res.json({ message: "Producto eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar producto:", error);
     res.status(500).json({
-      message:
-        "Error interno al eliminar el producto. Revisá que no esté asociado a una orden.",
+      message: "Error interno al eliminar el producto.",
     });
   }
 };

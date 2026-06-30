@@ -19,6 +19,8 @@ export interface Product {
 
   imageUrl?: string;
 
+  isActive?: boolean;
+
   hidden?: boolean;
 }
 

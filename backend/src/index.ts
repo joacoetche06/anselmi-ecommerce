@@ -244,8 +244,8 @@ AppDataSource.initialize()
 
           const reviews = await reviewRepo.find({
             where: { product: { id: productId }, isApproved: true },
-            relations: ["user"], // Traemos la relación para saber el nombre del autor
-            order: { createdAt: "DESC" },
+            relations: ["user"],
+            order: { rating: "DESC", createdAt: "DESC" },
           });
 
           // Mapeamos para NO mandar datos sensibles del usuario (como el passwordHash)

@@ -199,63 +199,6 @@
               <h3 style="margin: 0.5rem 0; font-size: 1.1rem; color: #333">{{ product.name }}</h3>
             </a>
 
-            <!-- SEMÁFORO DE STOCK -->
-            <div
-              [title]="getStockLabel(product.stockQuantity)"
-              style="
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                margin: 0.5rem 0;
-                cursor: help;
-              "
-            >
-              <span style="font-size: 0.8rem; color: #666; font-weight: bold">Disponibilidad:</span>
-              <div style="display: flex; gap: 3px">
-                <!-- Bloques Rojos (Nivel 1+) -->
-                <div
-                  [style.background]="
-                    getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'
-                  "
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                ></div>
-                <div
-                  [style.background]="
-                    getStockLevel(product.stockQuantity) >= 1 ? '#dc3545' : '#e9ecef'
-                  "
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                ></div>
-
-                <!-- Bloques Amarillos (Nivel 2+) -->
-                <div
-                  [style.background]="
-                    getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'
-                  "
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                ></div>
-                <div
-                  [style.background]="
-                    getStockLevel(product.stockQuantity) >= 2 ? '#ffc107' : '#e9ecef'
-                  "
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                ></div>
-
-                <!-- Bloques Verdes (Nivel 3) -->
-                <div
-                  [style.background]="
-                    getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'
-                  "
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                ></div>
-                <div
-                  [style.background]="
-                    getStockLevel(product.stockQuantity) >= 3 ? '#28a745' : '#e9ecef'
-                  "
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                ></div>
-              </div>
-            </div>
-
             <h2 style="color: #0056b3; margin: 0.5rem 0">
               ${{ product.finalPrice | number: '1.2-2' }}
             </h2>

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 // Creamos una interfaz para tipar los datos
 export interface AppConfig {
@@ -14,7 +15,7 @@ export interface AppConfig {
   providedIn: 'root',
 })
 export class ConfigService {
-  private apiUrl = 'http://localhost:3001/api/config';
+  private apiUrl = `${environment.apiUrl}/config`;
   constructor(private http: HttpClient) {}
 
   // Obtener la configuración actual

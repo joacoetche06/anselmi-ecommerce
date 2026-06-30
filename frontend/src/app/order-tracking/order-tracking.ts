@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router'; // <-- Importamos para leer la URL
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-order-tracking',
@@ -37,7 +38,7 @@ export class OrderTracking implements OnInit {
 
         // 3. Le avisamos al backend para que pase la orden de PENDING a CONFIRMED
         this.http
-          .post('http://localhost:3001/api/orders/confirm-payment', {
+          .post(`${environment.apiUrl}/orders/confirm-payment`, {
             external_reference: externalRef,
             status: status,
           })
@@ -68,7 +69,7 @@ export class OrderTracking implements OnInit {
     this.paymentSuccessMessage = ''; // Limpiamos el mensaje de pago si hace una nueva consulta
 
     this.http
-      .get(`http://localhost:3001/api/orders/track?id=${this.orderId}&email=${this.email}`)
+      .get(`${environment.apiUrl}/orders/track?id=${this.orderId}&email=${this.email}`)
       .subscribe({
         next: (data) => {
           this.orderInfo = data;

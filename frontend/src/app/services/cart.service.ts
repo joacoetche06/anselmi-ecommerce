@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'; // <-- 1. Importamos HttpClient
 import { BehaviorSubject, Observable } from 'rxjs'; // <-- 2. Sumamos Observable
 import { Product } from './product.service';
-
+import { environment } from '../../environments/environment';
 export interface CartItem {
   product: Product;
   quantity: number;
@@ -84,22 +84,22 @@ export class CartService {
 
   // 4. AGREGAMOS ESTA NUEVA FUNCIÓN AL FINAL (antes de cerrar la clase)
   submitOrder(orderData: any): Observable<any> {
-    return this.http.post('http://localhost:3001/api/orders', orderData);
+    return this.http.post(`${environment.apiUrl}/orders`, orderData);
   }
 
   // En src/app/services/cart.service.ts, agregá esto:
 
   getOrders(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3001/api/orders');
+    return this.http.get<any[]>(`${environment.apiUrl}/orders`);
   }
 
   // Trae todas las órdenes del sistema (para Maxi)
   getAllOrdersAdmin(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3001/api/orders/admin/all');
+    return this.http.get<any[]>(`${environment.apiUrl}/orders/admin/all`);
   }
 
   // Permite cambiar el estado de una orden
   updateOrderStatus(orderId: number, status: string): Observable<any> {
-    return this.http.patch(`http://localhost:3001/api/orders/${orderId}/status`, { status });
+    return this.http.patch(`${environment.apiUrl}/orders/${orderId}/status`, { status });
   }
 }

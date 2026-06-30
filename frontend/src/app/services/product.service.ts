@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { environment } from '../../environments/environment';
 export interface Product {
   id: number;
   sku: string;
@@ -28,7 +28,7 @@ export interface Product {
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3001/api/products';
+  private apiUrl = `${environment.apiUrl}/products`;
   // Adentro de la clase ProductService
 
   // Memoria del Catálogo
@@ -79,12 +79,12 @@ export class ProductService {
   // --- RESEÑAS ---
   getLatestReviews(): Observable<any[]> {
     // Le pegamos a la ruta global de reviews
-    return this.http.get<any[]>('http://localhost:3001/api/reviews/latest');
+    return this.http.get<any[]>(`${environment.apiUrl}/reviews/latest`);
   }
 
   // Obtener reseñas de un producto específico
   getReviewsByProduct(productId: number | string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3001/api/products/${productId}/reviews`);
+    return this.http.get<any[]>(`${environment.apiUrl}/products/${productId}/reviews`);
   }
 
   // Enviar una nueva reseña
@@ -92,18 +92,18 @@ export class ProductService {
     productId: number | string,
     reviewData: { rating: number; comment: string },
   ): Observable<any> {
-    return this.http.post(`http://localhost:3001/api/products/${productId}/reviews`, reviewData);
+    return this.http.post(`${environment.apiUrl}/products/${productId}/reviews`, reviewData);
   }
 
   getCompanyReviews(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3001/api/reviews/company');
+    return this.http.get<any[]>(`${environment.apiUrl}/reviews/company`);
   }
 
   createCompanyReview(data: any): Observable<any> {
-    return this.http.post('http://localhost:3001/api/reviews/company', data);
+    return this.http.post(`${environment.apiUrl}/reviews/company`, data);
   }
 
   getRelatedProducts(productId: string | number): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3001/api/products/${productId}/related`);
+    return this.http.get<any[]>(`${environment.apiUrl}/products/${productId}/related`);
   }
 }

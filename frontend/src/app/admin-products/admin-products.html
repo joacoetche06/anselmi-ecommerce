@@ -26,6 +26,55 @@
     </button>
   </div>
 
+  <!-- Búsqueda + acciones masivas -->
+  <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem; flex-wrap: wrap">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      name="searchTerm"
+      placeholder="Buscar por nombre o SKU..."
+      style="
+        flex: 1;
+        min-width: 240px;
+        padding: 0.7rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+      "
+    />
+    @if (selectedIds.size > 0) {
+      <span style="color: #555; font-weight: bold">{{ selectedIds.size }} seleccionados</span>
+      <button
+        (click)="bulkSetVisibility(false)"
+        style="
+          background: #dc3545;
+          color: white;
+          border: none;
+          padding: 0.7rem 1.2rem;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
+        "
+      >
+        Ocultar seleccionados
+      </button>
+      <button
+        (click)="bulkSetVisibility(true)"
+        style="
+          background: #28a745;
+          color: white;
+          border: none;
+          padding: 0.7rem 1.2rem;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
+        "
+      >
+        Mostrar seleccionados
+      </button>
+    }
+  </div>
+
   @if (loading) {
     <p style="text-align: center; margin-top: 2rem">Cargando catálogo...</p>
   } @else if (error) {
@@ -53,6 +102,14 @@
       <table style="width: 100%; border-collapse: collapse; text-align: left">
         <thead style="background: #f4f4f4">
           <tr>
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd; text-align: center">
+              <input
+                type="checkbox"
+                [checked]="allFilteredSelected"
+                (change)="toggleSelectAll()"
+                title="Seleccionar todos"
+              />
+            </th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">ID</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Imagen</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd">Nombre / SKU</th>
@@ -64,12 +121,19 @@
           </tr>
         </thead>
         <tbody>
-          @for (product of products; track product.id) {
+          @for (product of paginatedProducts; track product.id) {
             <tr
               style="transition: background 0.2s"
               onmouseover="this.style.background = '#f9f9f9'"
               onmouseout="this.style.background = 'white'"
             >
+              <td style="padding: 1rem; border-bottom: 1px solid #eee; text-align: center">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(product.id)"
+                  (change)="toggleSelection(product.id)"
+                />
+              </td>
               <td style="padding: 1rem; border-bottom: 1px solid #eee">
                 <strong>#{{ product.id }}</strong>
               </td>
@@ -163,6 +227,49 @@
           }
         </tbody>
       </table>
+
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem;
+        "
+      >
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+          style="
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+          "
+          [style.opacity]="currentPage === 1 ? 0.5 : 1"
+        >
+          ← Anterior
+        </button>
+        <span style="color: #555">
+          Página {{ currentPage }} de {{ totalPages }}
+          <small style="color: #999">({{ filteredProducts.length }} productos)</small>
+        </span>
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          style="
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+          "
+          [style.opacity]="currentPage === totalPages ? 0.5 : 1"
+        >
+          Siguiente →
+        </button>
+      </div>
     </div>
   }
 </main>

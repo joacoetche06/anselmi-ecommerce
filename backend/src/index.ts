@@ -28,6 +28,8 @@ import { IsNull, Not } from "typeorm";
 import { Config } from "./entity/Config";
 import { calculatePrices } from "./utils/pricing";
 import aiRoutes from "./routes/aiRoutes";
+
+import { syncCatalog } from "./services/alephSync";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -384,6 +386,39 @@ AppDataSource.initialize()
       await configRepo.save(config);
       res.json(config);
     });
+
+    app.post("/api/admin/sync-aleph", requireAdmin, async (_req, res) => {
+      try {
+        const result = await syncCatalog();
+        res.json({ message: "Sincronización completada", ...result });
+      } catch (error) {
+        console.error("Error en sync de Aleph:", error);
+        res.status(500).json({ message: "Error al sincronizar con Aleph" });
+      }
+    });
+
+    app.patch(
+      "/api/products/bulk-visibility",
+      requireAdmin,
+      async (req, res) => {
+        try {
+          const { ids, isActive } = req.body; // ids: number[], isActive: boolean
+          if (!Array.isArray(ids) || ids.length === 0) {
+            res.status(400).json({ message: "No se seleccionaron productos" });
+            return;
+          }
+          const productRepo = AppDataSource.getRepository(Product);
+          await productRepo.update(ids, { isActive });
+          res.json({
+            message: `${ids.length} productos actualizados`,
+            count: ids.length,
+          });
+        } catch (error) {
+          console.error("Error en bulk-visibility:", error);
+          res.status(500).json({ message: "Error al actualizar productos" });
+        }
+      },
+    );
 
     // --- LEVANTAR EL SERVIDOR ---
     const PORT = 3001;

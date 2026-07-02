@@ -15,10 +15,27 @@ export class AdminProducts implements OnInit {
   loading = true;
   error = '';
 
+  // Filtro / búsqueda
+  private _searchTerm = '';
+  get searchTerm(): string {
+    return this._searchTerm;
+  }
+  set searchTerm(value: string) {
+    this._searchTerm = value;
+    this.currentPage = 1; // al buscar, volver a la primera página
+  }
+  selectedMarca = '';
+
+  // Selección masiva
+  selectedIds = new Set<number>();
+
+  // Paginación
+  currentPage = 1;
+  pageSize = 25;
+
   showModal = false;
   isEditing = false;
 
-  // Variables corregidas a listPrice
   currentProduct: Partial<Product> = {
     name: '',
     sku: '',
@@ -40,7 +57,7 @@ export class AdminProducts implements OnInit {
 
   loadProducts() {
     this.loading = true;
-    // LLAMAMOS A LA RUTA NUEVA DE MAXI
+    this.selectedIds.clear();
     this.productService.getAdminProducts().subscribe({
       next: (data) => {
         this.products = data;
@@ -51,6 +68,80 @@ export class AdminProducts implements OnInit {
         this.error = 'Error al cargar el catálogo.';
         this.loading = false;
       },
+    });
+  }
+
+  // Lista filtrada por texto (nombre o SKU). Case-insensitive.
+  get filteredProducts(): Product[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.products;
+    return this.products.filter(
+      (p) => p.name?.toLowerCase().includes(term) || p.sku?.toLowerCase().includes(term),
+    );
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
+  }
+
+  // La porción de productos que se muestra en la página actual
+  get paginatedProducts(): Product[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+  }
+
+  nextPage() {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  prevPage() {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  // --- Selección ---
+  toggleSelection(id: number) {
+    if (this.selectedIds.has(id)) this.selectedIds.delete(id);
+    else this.selectedIds.add(id);
+  }
+
+  isSelected(id: number): boolean {
+    return this.selectedIds.has(id);
+  }
+
+  // Selecciona/deselecciona todos los que están filtrados en pantalla
+  toggleSelectAll() {
+    const filtered = this.filteredProducts;
+    const allSelected = filtered.every((p) => this.selectedIds.has(p.id));
+    if (allSelected) {
+      filtered.forEach((p) => this.selectedIds.delete(p.id));
+    } else {
+      filtered.forEach((p) => this.selectedIds.add(p.id));
+    }
+  }
+
+  get allFilteredSelected(): boolean {
+    const filtered = this.filteredProducts;
+    return filtered.length > 0 && filtered.every((p) => this.selectedIds.has(p.id));
+  }
+
+  // --- Acciones masivas ---
+  bulkSetVisibility(isActive: boolean) {
+    const ids = Array.from(this.selectedIds);
+    if (ids.length === 0) return;
+    const accion = isActive ? 'mostrar' : 'ocultar';
+    if (!confirm(`¿Seguro que querés ${accion} ${ids.length} productos?`)) return;
+
+    this.productService.bulkVisibility(ids, isActive).subscribe({
+      next: (res) => {
+        this.modalService.show(`${ids.length} productos actualizados.`, false);
+        this.loadProducts();
+      },
+      error: (err) => this.modalService.show('Error al actualizar productos.', true),
     });
   }
 

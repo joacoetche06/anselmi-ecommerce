@@ -71,4 +71,7 @@ export class Product {
   // Cuándo se generó la descripción auto por última vez
   @Column({ type: "timestamp", nullable: true })
   descriptionGeneratedAt: Date | null;
+
+  @Column({ type: "decimal", precision: 5, scale: 2, default: 21 })
+  taxRate: number; // IVA por producto (viene de Aleph TasaIva)
 }

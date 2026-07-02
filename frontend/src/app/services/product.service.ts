@@ -106,4 +106,8 @@ export class ProductService {
   getRelatedProducts(productId: string | number): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/products/${productId}/related`);
   }
+
+  bulkVisibility(ids: number[], isActive: boolean): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/products/bulk-visibility`, { ids, isActive });
+  }
 }

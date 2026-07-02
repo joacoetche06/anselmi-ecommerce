@@ -13,4 +13,7 @@ export class Config {
 
   @Column("decimal", { precision: 5, scale: 2, default: 21.0 })
   taxRate: number; // Ej: 21.00 (21%)
+
+  @Column({ type: "timestamp", nullable: true })
+  lastAlephSync: Date | null;
 }

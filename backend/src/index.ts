@@ -30,6 +30,7 @@ import { calculatePrices } from "./utils/pricing";
 import aiRoutes from "./routes/aiRoutes";
 
 import { syncCatalog } from "./services/alephSync";
+import { startAlephScheduler } from "./services/alephScheduler";
 // Inicializamos la aplicación Express
 const app = express();
 
@@ -427,6 +428,7 @@ AppDataSource.initialize()
       console.log(
         `👉 Probá el catálogo en: http://localhost:${PORT}/api/products`,
       );
+      startAlephScheduler();
     });
   })
   .catch((error) =>

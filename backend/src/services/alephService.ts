@@ -46,9 +46,7 @@ const MONEDA_PESOS = 20;
  * El objeto artículo ya incluye el campo `Stock`, así que en el flujo normal
  * no hace falta llamar a getStock por cada producto.
  */
-export async function getArticulos(
-  soloweb = false,
-): Promise<AlephArticulo[]> {
+export async function getArticulos(soloweb = false): Promise<AlephArticulo[]> {
   const { data } = await alephApi.get<AlephArticulo[]>(
     `/articulos/GetArticulosAll/?soloweb=${soloweb}`,
   );
@@ -107,4 +105,20 @@ export function mapArticuloToProduct(a: AlephArticulo): {
     // productos existentes (lo maneja el admin) y aplica un default solo a
     // los nuevos. Ver syncCatalog en alephSync.ts.
   };
+}
+
+/**
+ * Trae solo los artículos con FechaCambio >= la fecha dada (incremental).
+ * Formato de fecha: YYYY-MM-DD. Misma forma de respuesta que getArticulos.
+ * OJO (pendiente de confirmar con Nurith): depende de que Aleph actualice
+ * FechaCambio en cada cambio de precio/stock. Si no lo hace de forma fiable,
+ * el sync completo diario actúa de red de seguridad.
+ */
+export async function getArticulosDesde(
+  fecha: string,
+): Promise<AlephArticulo[]> {
+  const { data } = await alephApi.get<AlephArticulo[]>(
+    `/api/Productos/GetArticulos/${fecha}`,
+  );
+  return Array.isArray(data) ? data : [];
 }
